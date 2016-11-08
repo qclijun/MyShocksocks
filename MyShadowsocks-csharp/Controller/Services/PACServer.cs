@@ -172,7 +172,7 @@ Connection: Close
             DateTime value;
             if (!fileChangedTime.TryGetValue(path, out value) || value != currentLastWriteTime)
             {
-                if (PACFileChanged != null)
+                if (UserRuleFileChanged != null)
                 {
                     Logging.Info($"Detected: User Rule file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
                     UserRuleFileChanged(this, new EventArgs());

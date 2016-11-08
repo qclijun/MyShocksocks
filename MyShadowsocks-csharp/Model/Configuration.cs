@@ -19,41 +19,29 @@ namespace Shadowsocks.Model
             get; set;
         } = new List<Server>();
 
-        public string Strategy { get; set; }
-        public int Index { get; set; }
-        public  bool Global { get; set; }
-        public bool Enabled { get; set; }
-        public bool ShareOverLan { get; set; }
-        public bool IsDefault{ get; set; }
+        public string Strategy { get; set; } = "";
+        public int Index { get; set; } = 0;
+        public bool Global { get; set; } = false; //global or pac
+        public bool Enabled { get; set; } = true;
+        public bool ShareOverLan { get; set; } = false;
+        public bool IsDefault { get; set; } = true;
 
-        public  int LocalPort { get; set; }
-        public string PacUrl { get; set; }
-        public bool UseOnlinePac { get; set; }
-        public bool AvailabilityStatistics { get; set; }
-        public bool AuthCheckUpdate { get; set; }
-        public bool IsVerboseLogging { get; set; }
+        public int LocalPort { get; set; } = 1080;
+        public string PacUrl { get; set; } = "";
+        public bool UseOnlinePac { get; set; } = false;
+        public bool AvailabilityStatistics { get; set; } = false;
+        public bool AuthCheckUpdate { get; set; } = true;
+        public bool IsVerboseLogging { get; set; } = false;
 
-        public LogViewerConfiguration LogViewerConfig { get; set; }
-        public ProxyConfiguration ProxyConfig { get; set; }
-        public HotkeyConfiguration HotkeyConfig { get; set; }
+        public LogViewerConfiguration LogViewerConfig { get; set; } = new LogViewerConfiguration();
+        public ProxyConfiguration ProxyConfig { get; set; } = new ProxyConfiguration();
+        public HotkeyConfiguration HotkeyConfig { get; set; } = new HotkeyConfiguration();
 
         private const string CONFIG_FILE = "gui-config.json";
 
-        
-      
-
-        public List<Server> GetServers() { return ServerList; }
-
-        public Server GetCurrentServer()
-        {
-            if (Index >= 0 && Index < ServerList.Count)  
-                return ServerList[Index];
-            else
-                return GetDefaultServer();
-        }
 
         private static Configuration _instance = null;
-        //singleton instance
+        
         public static Configuration Instance
         {
             get
@@ -63,7 +51,21 @@ namespace Shadowsocks.Model
             }
         }
 
-        private Configuration() { }
+        //因为需要序列化，所以不能设置成private
+        public Configuration() { }
+
+
+        public List<Server> GetServers() { return ServerList; }
+
+        public Server GetCurrentServer()
+        {
+            if (Index >= 0 && Index < ServerList.Count)
+                return ServerList[Index];
+            else
+                return GetDefaultServer();
+        }
+
+
 
         private static Configuration Load()
         {
@@ -72,7 +74,7 @@ namespace Shadowsocks.Model
                 string configContent = File.ReadAllText(CONFIG_FILE);
                 Configuration config = JsonConvert.DeserializeObject<Configuration>(configContent);
                 config.IsDefault = false;
-                if (config.LocalPort == 0) config.LocalPort = 1080;
+                if (config.LocalPort <= 0 || config.LocalPort>65535) config.LocalPort = 1080;
                 if (config.Index == -1 && config.Strategy == null)
                     config.Index = 0;
                 if (config.LogViewerConfig == null)
@@ -81,10 +83,7 @@ namespace Shadowsocks.Model
                     config.ProxyConfig = new ProxyConfiguration();
                 if (config.HotkeyConfig == null)
                     config.HotkeyConfig = new HotkeyConfiguration();
-                if (config.ProxyConfig.ProxyType < ProxyConfiguration.PROXY_SOCKS5 || config.ProxyConfig.ProxyType > ProxyConfiguration.PROXY_HTTP)
-                {
-                    config.ProxyConfig.ProxyType = ProxyConfiguration.PROXY_SOCKS5;
-                }
+
                 return config;
             }
             catch (FileNotFoundException)
@@ -125,10 +124,10 @@ namespace Shadowsocks.Model
 
         private static void CheckServer(Server server)
         {
-            CheckPort(server.server_port);
-            CheckPassword(server.password);
-            CheckServer(server.server);
-            CheckTimeout(server.timeout, Server.MaxServerTimeoutSec);
+            CheckPort(server.ServerPort);
+            CheckPassword(server.Password);
+            CheckServer(server.ServerName);
+            CheckTimeout(server.Timeout, Server.MaxServerTimeoutSec);
         }
 
         private static void CheckPort(int port)
@@ -171,17 +170,7 @@ namespace Shadowsocks.Model
 
         private static Configuration GetDefaultConfig()
         {
-            return new Configuration
-            {
-                Index = 0,
-                IsDefault = true,
-                LocalPort = 1080,
-                AuthCheckUpdate = true,
-                ServerList = new List<Server>()
-                    {
-                        GetDefaultServer()
-                    }
-            };
+            return new Configuration();
         }
     }
 }

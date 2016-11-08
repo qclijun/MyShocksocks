@@ -65,6 +65,7 @@
     <Compile Include="Controller\Strategy\IStrategy.cs" />
     <Compile Include="Controller\Strategy\StatisticsStrategy.cs" />
     <Compile Include="Controller\Strategy\StrategyManager.cs" />
+    <Compile Include="Controller\Services\SystemProxy.cs" />
     <Compile Include="Model\Configuration.cs" />
     <Compile Include="Model\HotkeyConfig.cs" />
     <Compile Include="Model\LogViewerConfig.cs" />
@@ -77,6 +78,12 @@
     <Compile Include="StringEx.cs" />
     <Compile Include="Util\ProcessManagement\Job.cs" />
     <Compile Include="Util\ProcessManagement\ThreadUtil.cs" />
+    <Compile Include="Util\SystemProxy\INTERNET_OPTION.cs" />
+    <Compile Include="Util\SystemProxy\INTERNET_PER_CONN_OPTION.cs" />
+    <Compile Include="Util\SystemProxy\INTERNET_PER_CONN_OPTION_LIST.cs" />
+    <Compile Include="Util\SystemProxy\NativeMethods.cs" />
+    <Compile Include="Util\SystemProxy\RemoteAccessService.cs" />
+    <Compile Include="Util\SystemProxy\WinINet.cs" />
     <Compile Include="Util\Utils.cs" />
     <Compile Include="View\ConfigForm.cs">
       <SubType>Form</SubType>

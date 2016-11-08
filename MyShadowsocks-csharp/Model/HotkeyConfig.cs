@@ -9,13 +9,13 @@ namespace Shadowsocks.Model
     [Serializable]
     public class HotkeyConfiguration
     {
-        private string switchSystemProxy;
-        private string changeToPac;
-        private string changeToGlobal;
-        private string switchAllowLan;
-        private string showLogs;
-        private string serverMoveUp;
-        private string serverMoveDown;
+        public string SwitchSystemProxy { get; set; }
+        public string ChangeToPac { get; set; }
+        public string ChangeToGlobal { get; set; }
+        public string SwitchAllowLan { get; set; }
+        public string ShowLogs { get; set; }
+        public string ServerMoveUp { get; set; }
+        public string ServerMoveDown { get; set; }
 
         public HotkeyConfiguration()
         {

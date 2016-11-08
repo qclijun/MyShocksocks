@@ -392,7 +392,7 @@ namespace Shadowsocks.Controller
 
             public void Start(object userState)
             {
-                if (server.server == "")
+                if (server.ServerName == "")
                 {
                     FireCompleted(new Exception("Invalid Server"), userState);
                     return;
@@ -407,7 +407,7 @@ namespace Shadowsocks.Controller
                     Logging.Debug($"Ping {server.FriendlyName()}");
                     if (ip == null)
                     {
-                        ip = Dns.GetHostAddresses(server.server)
+                        ip = Dns.GetHostAddresses(server.ServerName)
                             .First(ip =>
                             ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ||
                             ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6);

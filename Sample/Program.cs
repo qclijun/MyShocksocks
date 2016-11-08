@@ -13,21 +13,32 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using System.Web.Script.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+using Junlee.Util.SystemProxy;
+//using Shadowsocks.Util.SystemProxy;
 
 namespace Sample
 {
-
-    struct A
+     enum ProxyType
     {
-        public int x;
-        public int y;
+        Socks5=0,
+        Http=1,
     }
-
-    struct B
+    class Product
     {
-       public A a;
-       public int z;
+        public string Name { get; set; }
+        public DateTime ExpiryDate { get; set; }
+        public decimal Price { get; set; }
+
+        public string[] Sizes { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ProxyType Type { get; set; }
+
+        public Product() { }
     }
+   
 
     [Serializable]
     class MyObject
@@ -99,36 +110,7 @@ namespace Sample
 
         static void Main(string[] args)
         {
-
-            string currPath = Directory.GetCurrentDirectory();
-            MyObject obj = new MyObject(55);
-            obj.n1 = 33;
-            //obj.N2 = 34556;
-            obj.setStr("woooo");
-            Console.WriteLine(obj);
-
-            IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream("MyFile.bin", FileMode.Create, FileAccess.Write, FileShare.None);
-            formatter.Serialize(stream, obj);
-            stream.Close();
-
-            formatter = new BinaryFormatter();
-            stream = new FileStream("MyFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-            MyObject obj2 = (MyObject)formatter.Deserialize(stream);
-            stream.Close();
-
-            Console.WriteLine(obj2);
-
-
-            //JavaScript serializer only public fields or properties.
-            var serializer = new JavaScriptSerializer();
-            var result2 = serializer.Serialize(obj);
-            Console.WriteLine(result2);
-
-            var result = JsonConvert.SerializeObject(obj);
-            Console.WriteLine(result);
-            MyObject obj3= JsonConvert.DeserializeObject<MyObject>(result);
-            Console.WriteLine("jsonConvert: "+obj3);
+            WinINet.SetIEProxy(WinINet.IEProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
 
             Console.WriteLine("Here");
             Console.ReadLine();

@@ -11,52 +11,42 @@ namespace Shadowsocks.Model
     [Serializable]
     public class LogViewerConfiguration
     {
-        private string fontName;
-        private float fontSize;
-        private string bgColor;
-        private string textColor;
-        private bool topMost;
-        private bool wrapText;
-        private bool toolbarShown;
-        private int width;
-        private int height;
-        private int top;
-        private int left;
-        private bool maximized;
+        public string FontName { get; set; } = "Consolas";
+        public float FontSize { get; set; } = 8;
+        public string BgColor { get; set; } = "black";
+        public string TextColor { get; set; } = "white";
+        public bool TopMost { get; set; } = false;
+        public bool WrapText { get; set; } = false;
+        public bool ToolbarShown { get; set; } = false;
+        public int Width { get; set; } = 600;
+        public int Height { get; set; } = 400;
+        public int Top { get; set; } = 0;
+        public int Left { get; set; } = 0;
+        public bool Maximized { get; set; } = true;
 
         public LogViewerConfiguration()
         {
-            fontName = "Consolas";
-            fontSize = 8;
-            bgColor = "black";
-            textColor = "white";
-            topMost = false;
-            wrapText = false;
-            toolbarShown = false;
-            width = 600;
-            height = 400;
-            left = GetBestLeft();
-            top = GetBestTop();
-            maximized = true;
+            Left = GetBestLeft();
+            Top = GetBestTop();
         }
 
         private int GetBestLeft()
         {
-            width = (width >= 400) ? width : 400;
-            return Screen.PrimaryScreen.WorkingArea.Width - width;
+            Width = (Width >= 400) ? Width : 400;
+            return Screen.PrimaryScreen.WorkingArea.Width - Width;
         }
 
         private int GetBestTop()
         {
-            height = (height >= 200) ? height : 200;
-            return Screen.PrimaryScreen.WorkingArea.Height - height;
+            Height = (Height >= 200) ? Height : 200;
+            return Screen.PrimaryScreen.WorkingArea.Height - Height;
         }
 
         private Font GetFont()
         {
             try
             {
-                return new Font(fontName, fontSize, FontStyle.Regular);
+                return new Font(FontName, FontSize, FontStyle.Regular);
             }
             catch (Exception)
             {
@@ -66,15 +56,15 @@ namespace Shadowsocks.Model
         
         public void SetFont(Font font)
         {
-            fontName = font.Name;
-            fontSize = font.Size;
+            FontName = font.Name;
+            FontSize = font.Size;
         }
 
         private Color GetBackgroundColor()
         {
             try
             {
-                return ColorTranslator.FromHtml(bgColor);
+                return ColorTranslator.FromHtml(BgColor);
             }
             catch (Exception)
             {
@@ -84,14 +74,14 @@ namespace Shadowsocks.Model
 
         public void SetBackgroundColor(Color color)
         {
-            bgColor = ColorTranslator.ToHtml(color);
+            BgColor = ColorTranslator.ToHtml(color);
         }
 
         public Color GetTextColor()
         {
             try
             {
-                return ColorTranslator.FromHtml(textColor);
+                return ColorTranslator.FromHtml(TextColor);
             }
             catch (Exception)
             {
@@ -101,7 +91,7 @@ namespace Shadowsocks.Model
 
         public void SetTextColor(Color color)
         {
-            textColor = ColorTranslator.ToHtml(color);
+            TextColor = ColorTranslator.ToHtml(color);
         }
     }
 }

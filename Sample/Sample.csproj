@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JunLibrary">
+      <HintPath>..\artifacts\bin\JunLibrary\Debug\dotnet\JunLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\MyShadowsocks-csharp\3rd\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -54,6 +57,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyShadowsocks-csharp\MyShadowsocks-csharp.csproj">
+      <Project>{90d80416-0918-469f-8c6f-3ba9b1eb620d}</Project>
+      <Name>MyShadowsocks-csharp</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

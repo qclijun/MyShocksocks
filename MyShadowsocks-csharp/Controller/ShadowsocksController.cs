@@ -18,7 +18,7 @@ namespace Shadowsocks.Controller
 
         private Listener _listener;
         private PACServer _pacServer;
-        private Configuration _config;
+       
         public Configuration Config  => Configuration.Instance;
 
         private StrategyManager _strategyManager;
@@ -76,7 +76,7 @@ namespace Shadowsocks.Controller
 
         public ShadowsocksController()
         {
-            _config = Configuration.Instance;
+            
             StatisticsConfiguration = StatisticsStrategyConfiguration.Load();
             _strategyManager = new StrategyManager(this);
             StartReleaseMemory();
@@ -106,7 +106,10 @@ namespace Shadowsocks.Controller
 
         private void UpdateSystemProxy()
         {
-            
+            if (Config.Enabled)
+            {
+                //SystemProxy
+            }
         }
 
         private void pacServer_PACFileChanged(object sender, EventArgs e)

@@ -20,78 +20,72 @@ namespace Shadowsocks.Model
         private const int DefaultServerTimeoutSec = 5;
         public const int MaxServerTimeoutSec = 20;
 
-        public string server;
-        public int server_port;
-        public string password;
-        public string method;
-        public string remarks;
-        public bool auth;
-        public int timeout;
+        public string ServerName { get; set; } = "";
+        public int ServerPort { get; set; } = 8388;
+        public string Password { get; set; } = "";
+        public string Method { get; set; } = "aes-256-cfb";
+        public string Remarks { get; set; } = "";
+        public bool Auth { get; set; } = false;
+        public int Timeout { get; set; } = DefaultServerTimeoutSec;
 
         public override int GetHashCode()
         {
-            return server.GetHashCode() ^ server_port;
+            return ServerName.GetHashCode() ^ ServerPort;
         }
 
         public override bool Equals(object obj)
         {
             Server o2 = (Server)obj;
-            return server == o2.server && server_port == o2.server_port;
+            return ServerName == o2.ServerName && ServerPort == o2.ServerPort;
         }
 
         public string FriendlyName()
         {
-            if (string.IsNullOrEmpty(server))
+            if (string.IsNullOrEmpty(ServerName))
             {
                 return I18N.GetString("New server");
        
             }
             string serverStr;
 
-            var hostType = Uri.CheckHostName(server);
+            var hostType = Uri.CheckHostName(ServerName);
             if (hostType == UriHostNameType.Unknown)
                 throw new FormatException("Invalid Server Address.");
             switch (hostType)
             {
                 case UriHostNameType.IPv6:
-                    serverStr = $"[{server}]:{server_port}";
+                    serverStr = $"[{ServerName}]:{ServerPort}";
                     break;
                 default:
-                    serverStr = $"{server}:{server_port}";
+                    serverStr = $"{ServerName}:{ServerPort}";
                     break;
             }
-            return string.IsNullOrEmpty(remarks) ? serverStr :
-                $"{remarks}({serverStr})";
+            return string.IsNullOrEmpty(Remarks) ? serverStr :
+                $"{Remarks}({serverStr})";
         }
 
         public Server()
         {
-            server = "";
-            server_port = 8388;
-            method = "aes-256-cfb";
-            password = "";
-            remarks = "";
-            auth = false;
-            timeout = DefaultServerTimeoutSec;
-    
+          
         }
+
         public Server(string ssURL) : this()
         {
             var match = UrlFinder.Match(ssURL);
-            if (!match.Success) throw new FormatException();
+            if (!match.Success) throw new FormatException($"Invalid shadowsocks URL: {ssURL}");
             var base64 = match.Groups[1].Value;
             match = DetailsParser.Match(Encoding.UTF8.GetString(Convert.FromBase64String(
                 base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '='))));
-            method = match.Groups["method"].Value;
-            auth = match.Groups["auth"].Success;
-            password = match.Groups["password"].Value;
-            server = match.Groups["hostname"].Value;
-            server_port = int.Parse(match.Groups["port"].Value);
+            Method = match.Groups["method"].Value;
+            Auth = match.Groups["auth"].Success;
+            Password = match.Groups["password"].Value;
+            ServerName = match.Groups["hostname"].Value;
+            ServerPort = int.Parse(match.Groups["port"].Value);
         }
 
         public string Identifier()
         {
-            return $"{server}:{server_port}";
+            return $"{ServerName}:{ServerPort}";
         }
     }
 }
