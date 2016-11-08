@@ -1,0 +1,8 @@
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Sample.exe.config
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Sample.exe
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Sample.pdb
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\obj\Debug\Sample.csprojResolveAssemblyReference.cache
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\obj\Debug\Sample.exe
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\obj\Debug\Sample.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Newtonsoft.Json.xml

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyShadowsocks-csharp", "MyShadowsocks-csharp\MyShadowsocks-csharp.csproj", "{90D80416-0918-469F-8C6F-3BA9B1EB620D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{90D80416-0918-469F-8C6F-3BA9B1EB620D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90D80416-0918-469F-8C6F-3BA9B1EB620D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90D80416-0918-469F-8C6F-3BA9B1EB620D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90D80416-0918-469F-8C6F-3BA9B1EB620D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,10 @@
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\MyShadowsocks-csharp.exe.config
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.csprojResolveAssemblyReference.cache
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks_csharp.Properties.Resources.resources
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.csproj.GenerateResource.Cache
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\MyShadowsocks-csharp.exe
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\MyShadowsocks-csharp.pdb
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.exe
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.pdb
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\Shadowsocks.View.ConfigForm.resources
+c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\Shadowsocks.exe.config
