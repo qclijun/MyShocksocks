@@ -111,14 +111,17 @@ namespace Sample
         static void Main(string[] args)
         {
             //WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
-            GfwUpdater updater = new GfwUpdater();
-            updater.GfwFileChanged += (sender, e) =>
+
+            DateTime lastWrite = File.GetLastWriteTime("pac.txt");
+            Console.WriteLine(lastWrite);
+
+            PACServer2 pacServer = new PACServer2();
+            pacServer.PACFileChanged += (sender, e) =>
             {
-                Console.WriteLine(sender.ToString() + " " + e.ToString());
+                //Console.WriteLine($"{e.Name} {e.ChangeType} {e.FullPath}");
+
             };
-            updater.UpdateGfwListFromUri();
-
-
+            pacServer.GetGfwUpdater().UpdateGfwListFromUri();
 
             Console.WriteLine("Here");
             Console.ReadLine();

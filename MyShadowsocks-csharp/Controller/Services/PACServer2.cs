@@ -11,10 +11,11 @@ using System.Globalization;
 using Shadowsocks.Model;
 using Shadowsocks.Properties;
 using Newtonsoft.Json;
+using Shadowsocks.Util;
 
 namespace Shadowsocks.Controller
 {
-    class PACServer2 : Service
+    public class PACServer2 : Service
     {
         public const string PAC_FILE = "pac.txt";
         public const string USER_RULE_FILE = "user-rule.txt";
@@ -23,19 +24,26 @@ namespace Shadowsocks.Controller
         FileSystemWatcher PACFileWatcher;
         FileSystemWatcher UserRuleFileWatcher;
         private Configuration _config;
-        private GfwUpdater _updater;
+        private GfwUpdater _gfwUpdater;
 
-        public event EventHandler PACFileChanged;
-        public event EventHandler UserRuleFileChanged;
+        public event EventHandler<FileSystemEventArgs> PACFileChanged;
+        
 
         public PACServer2()
         {
-            _updater = new GfwUpdater();
+            _gfwUpdater = new GfwUpdater();
+            _gfwUpdater.GfwFileChanged += OnProxyRulesChanged;
             _config = Configuration.Instance;
             this.WatchPacFile();
             this.WatchUserRuleFile();
-            
+
         }
+
+        public GfwUpdater GetGfwUpdater()
+        {
+            return _gfwUpdater;
+        }
+
 
         private void UpdateConfiguration(Configuration config)
         {
@@ -95,6 +103,20 @@ namespace Shadowsocks.Controller
             return USER_RULE_FILE;
         }
 
+        private string GetAbpFileContent()
+        {
+            string abpContent;
+            if (File.Exists(USER_ABP_FILE))
+            {
+                abpContent = File.ReadAllText(USER_ABP_FILE, Encoding.UTF8);
+            }
+            else
+            {
+                abpContent = Utils.UnGzip(Resources.abp_js);
+            }
+            return abpContent;
+        }
+
         private string GetPACContent()
         {
             if (File.Exists(PAC_FILE))
@@ -141,7 +163,9 @@ Connection: Close
             {
                 conn.Shutdown(SocketShutdown.Send);
             }
-            catch { }
+            catch {
+                //TODO: exception handler
+            }
         }
 
 
@@ -151,10 +175,11 @@ Connection: Close
             PACFileWatcher = new FileSystemWatcher(Directory.GetCurrentDirectory());
             PACFileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             PACFileWatcher.Filter = PAC_FILE;
-            PACFileWatcher.Changed += PACFileWatcher_Changed;
-            PACFileWatcher.Created += PACFileWatcher_Changed;
-            PACFileWatcher.Deleted += PACFileWatcher_Changed;
-            PACFileWatcher.Renamed += PACFileWatcher_Changed;
+            PACFileWatcher.IncludeSubdirectories = false;
+            PACFileWatcher.Changed += OnPacFileWatcher_Changed;
+            PACFileWatcher.Created += OnPacFileWatcher_CreateDeleteRename;
+            PACFileWatcher.Deleted += OnPacFileWatcher_CreateDeleteRename;
+            PACFileWatcher.Renamed += OnPacFileWatcher_CreateDeleteRename;
             PACFileWatcher.EnableRaisingEvents = true;
         }
 
@@ -165,37 +190,68 @@ Connection: Close
             UserRuleFileWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
             UserRuleFileWatcher.Filter = USER_RULE_FILE;
             UserRuleFileWatcher.Changed += UserRuleFileWatcher_Changed;
-            UserRuleFileWatcher.Created += UserRuleFileWatcher_Changed;
-            UserRuleFileWatcher.Deleted += UserRuleFileWatcher_Changed;
-            UserRuleFileWatcher.Renamed += UserRuleFileWatcher_Changed;
+            UserRuleFileWatcher.Created += UserRuleFileWatcher_CreateDeleteRenamed;
+            UserRuleFileWatcher.Deleted += UserRuleFileWatcher_CreateDeleteRenamed;
+            UserRuleFileWatcher.Renamed += UserRuleFileWatcher_CreateDeleteRenamed;
             UserRuleFileWatcher.EnableRaisingEvents = true;
         }
 
         private static Dictionary<string, DateTime> fileChangedTime = new Dictionary<string, DateTime>();
 
+
+        private void UserRuleFileWatcher_CreateDeleteRenamed(object sender, FileSystemEventArgs e)
+        {
+ 
+            switch (e.ChangeType)
+            {
+                case WatcherChangeTypes.Renamed:
+                    RenamedEventArgs re = (RenamedEventArgs)e;
+                    Logging.Info($"Detected: User rule file '{re.OldName}' renamed to {re.Name}.");
+                    break;
+                default:
+                    Logging.Info($"Detected: User rule file '{e.Name}' {e.ChangeType.ToString().ToLower()}.");
+                    break;
+            }
+
+
+            OnProxyRulesChanged(sender, e);
+        }
+
         private void UserRuleFileWatcher_Changed(object sender, FileSystemEventArgs e)
         {
-            string path = e.FullPath.ToString();
+
+
+            string path = e.FullPath;
             var currentLastWriteTime = File.GetLastWriteTime(e.FullPath);
 
             DateTime value;
-            if (!fileChangedTime.TryGetValue(path, out value) || value != currentLastWriteTime)
+            if (!fileChangedTime.TryGetValue(path, out value) || ( currentLastWriteTime- value).TotalSeconds>=1 )
             {
-                //if (UserRuleFileChanged != null)
-                //{
-                //    Logging.Info($"Detected: User Rule file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
-                //    UserRuleFileChanged(this, new EventArgs());
-                //}
-                //fileChangedTime[path] = currentLastWriteTime;
-
+                Logging.Info($"Detected: User rule file '{e.Name}' modified.");
+                
+                fileChangedTime[path] = currentLastWriteTime;
+                OnProxyRulesChanged(sender, e);
             }
         }
 
-        private void OnProxyRulesChanged(object sender, EventArgs e )
+        //user-rule and gfwlist may both cause proxyRulesChanged
+        private void OnProxyRulesChanged(object sender, EventArgs e)
         {
+            // 
+
             if (!File.Exists(GfwUpdater.GfwListFilePath))
             {
-                GfwUpdater.DownloadGfwList();
+                _gfwUpdater.UpdateGfwListFromUri(); // event transferred to GfwUpdater
+                return;
+            }
+
+            string usrRuleFileName = USER_RULE_FILE;
+            StringBuilder abpContent = new StringBuilder(GetAbpFileContent());
+            string newPac = BuildPacFile(abpContent, usrRuleFileName, GfwUpdater.GfwListFilePath);
+            if (!File.Exists(PAC_FILE) || File.ReadAllText(PAC_FILE) != newPac)
+            {
+                File.WriteAllText(PAC_FILE, newPac); // 
+                // raise PACFileWatcher.Changed
             }
 
 
@@ -203,26 +259,39 @@ Connection: Close
 
         private const string IgnoredLineBegins = "![";
 
-        private static List<string> BuildProxyRules(string usrRuleFileName, string gfwListFileName)
+        private static List<string> ParseProxyRulesFromUsr(string usrRuleFileName)
         {
-            byte[] bytes = Convert.FromBase64String(File.ReadAllText(usrRuleFileName));
-            string content = Encoding.ASCII.GetString(bytes);
             List<string> valid_lines = new List<string>();
-            using(var sr = new StringReader(content))
+            if (File.Exists(usrRuleFileName))
             {
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                using (var sr = new StreamReader(File.OpenRead(usrRuleFileName)))
                 {
-                    if (IgnoredLineBegins.Contains(line[0])) continue;
-                    valid_lines.Add(line);
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line == "" || line.IsWhiteSpace()) continue;
+                        if (line.BeginWithAny(IgnoredLineBegins)) continue;
+                        valid_lines.Add(line);
+                    }
                 }
             }
-            using(var sr = new StreamReader(File.OpenRead(usrRuleFileName)))
+            return valid_lines;
+        }
+
+        public static List<string> ParseProxyRulesFromGfw(string gfwListFileName)
+        {
+            byte[] bytes = Convert.FromBase64String(File.ReadAllText(gfwListFileName));
+            //string content = Encoding.ASCII.GetString(bytes);
+            List<string> valid_lines = new List<string>();
+            using (var sr = new StreamReader(new MemoryStream(bytes), Encoding.ASCII))
             {
                 string line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (IgnoredLineBegins.Contains(line[0])) continue;
+
+                    if (line == "" || line.IsWhiteSpace()) continue;
+                    if (line.BeginWithAny(IgnoredLineBegins)) continue;
+                    //if (IgnoredLineBegins.Contains(line[0])) continue;
                     valid_lines.Add(line);
                 }
             }
@@ -230,33 +299,52 @@ Connection: Close
         }
 
 
+        private static List<string> ParseProxyRules(string usrRuleFileName, string gfwListFileName)
+        {
+            List<string> valid_lines = ParseProxyRulesFromGfw(gfwListFileName);
+            valid_lines.AddRange(ParseProxyRulesFromUsr(usrRuleFileName));
+            return valid_lines;
+        }
+
+
         private static string BuildPacFile(StringBuilder abpContent, string usrRuleFileName, string gfwListFileName)
         {
-            List<string> ruleList = BuildProxyRules(usrRuleFileName, gfwListFileName);
+            List<string> ruleList = ParseProxyRules(usrRuleFileName, gfwListFileName);
             abpContent.Replace("__RULES__", JsonConvert.SerializeObject(ruleList, Formatting.Indented));
             return abpContent.ToString();
         }
 
-        
 
-        private void PACFileWatcher_Changed(object sender, FileSystemEventArgs e)
+        private void OnPacFileWatcher_CreateDeleteRename(object sender, FileSystemEventArgs e)
         {
-            string path = e.FullPath.ToString();
-            var currentLastWriteTime = File.GetLastWriteTime(e.FullPath);
-
-            DateTime value;
-            if (!fileChangedTime.TryGetValue(path, out value) || value != currentLastWriteTime)
-            {
-                if (PACFileChanged != null)
-                {
-                    Logging.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
-                    PACFileChanged(this, new EventArgs());
-                }
-                fileChangedTime[path] = currentLastWriteTime;
-            }
-
+            //Console.WriteLine($"{e.Name}: {e.ChangeType.ToString()}");
+            OnPacFileChanged(sender, e);
         }
 
+
+
+        private void OnPacFileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            //Console.WriteLine($"{e.Name}: {e.ChangeType.ToString()}");
+            string path = e.FullPath;
+            var currentLastWriteTime = File.GetLastWriteTime(e.FullPath);
+            DateTime value;
+            if (!fileChangedTime.TryGetValue(path, out value) || (currentLastWriteTime - value).TotalSeconds >= 1) //FileSystemWatcher may raise many events
+            {
+                OnPacFileChanged(sender, e);
+                fileChangedTime[path] = currentLastWriteTime;
+            }
+        }
+
+        private void OnPacFileChanged(object sender, FileSystemEventArgs e)
+        {
+            var handler = PACFileChanged;
+            if (handler != null)
+            {
+                Logging.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
+                handler(sender, e);
+            }
+        }
 
     }
 }

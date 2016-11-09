@@ -17,7 +17,7 @@ namespace Shadowsocks.Controller
     public class GfwUpdater
     {
 
-        public const string DEFAULT_GFWLIST_URI = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlistjjj.txt";
+        public const string DEFAULT_GFWLIST_URI = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt";
         public const string GFWLIST_FILE = "gfwlist.txt";
         public static readonly string GfwListFilePath = Path.Combine(Path.GetTempPath(), GFWLIST_FILE);
 
@@ -55,13 +55,13 @@ namespace Shadowsocks.Controller
 
         //Download gfwlist to GfwListFilePath
         //不是异步，可能会阻塞线程
-        public static void DownloadGfwList(string gfwListUri)
+        private static void DownloadGfwList(string gfwListUri)
         {
             WebClient http = new WebClient();
             http.DownloadFile(new Uri(gfwListUri), GfwListFilePath);
         }
 
-        public static void DownloadGfwList()
+        private static void DownloadGfwList()
         {
             DownloadGfwList(DEFAULT_GFWLIST_URI);
         }

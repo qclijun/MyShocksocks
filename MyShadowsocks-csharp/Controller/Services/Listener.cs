@@ -26,9 +26,9 @@ namespace Shadowsocks.Controller
         private bool _shareOverLAN;
         private Socket _tcpSocket;
         private Socket _udpSocket;
-        private List<IService> _services;
+        private List<Service> _services;
 
-        public Listener(List<IService> services)
+        public Listener(List<Service> services)
         {
             this._services = services;
         }
@@ -103,7 +103,7 @@ namespace Shadowsocks.Controller
             try
             {
                 int byteRead = socket.EndReceiveFrom(ar, ref state.remoteEndPoint);
-                foreach(IService service in _services)
+                foreach(Service service in _services)
                 {
                     if (service.Handle(state.buffer, byteRead, socket, state))
                         break;
@@ -166,7 +166,7 @@ namespace Shadowsocks.Controller
             try
             {
                 int byteRead = conn.EndReceive(ar);
-                foreach(IService service in _services)
+                foreach(Service service in _services)
                 {
                     if (service.Handle(buf, byteRead, conn, null))
                         return;
