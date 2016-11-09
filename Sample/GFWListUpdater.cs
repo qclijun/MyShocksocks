@@ -102,7 +102,7 @@ namespace Sample
             http.DownloadStringAsync(new Uri(GFWLIST_URL));
         }
 
-        private static List<string> ParseResult(string result)
+         internal static List<string> ParseResult(string result)
         {
             byte[] bytes = Convert.FromBase64String(result);
             string content = Encoding.ASCII.GetString(bytes);

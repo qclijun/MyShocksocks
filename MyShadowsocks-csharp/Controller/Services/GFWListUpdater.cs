@@ -38,6 +38,7 @@ namespace Shadowsocks.Controller
             try
             {
                 File.WriteAllText(Utils.GetTempPath(GFWLIST_FILE), e.Result, Encoding.UTF8);
+
                 List<string> lines = ParseResult(e.Result);
                 if (File.Exists(PACServer.USER_RULE_FILE))
                 {

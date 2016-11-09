@@ -108,7 +108,18 @@ namespace Shadowsocks.Controller
         {
             if (Config.Enabled)
             {
-                //SystemProxy
+                SystemProxy.Update(Config, false);
+                _systemProxyIsDirty = true;
+            }
+            else
+            {
+                //only switch it off if this class has switched it on
+                if (_systemProxyIsDirty)
+                {
+                    SystemProxy.Update(Config, false);
+                    _systemProxyIsDirty = false;
+                }
+                
             }
         }
 

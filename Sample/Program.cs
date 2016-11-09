@@ -15,8 +15,8 @@ using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-using Junlee.Util.SystemProxy;
-//using Shadowsocks.Util.SystemProxy;
+
+using Shadowsocks.Controller;
 
 namespace Sample
 {
@@ -110,7 +110,15 @@ namespace Sample
 
         static void Main(string[] args)
         {
-            WinINet.SetIEProxy(WinINet.IEProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
+            //WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
+            GfwUpdater updater = new GfwUpdater();
+            updater.GfwFileChanged += (sender, e) =>
+            {
+                Console.WriteLine(sender.ToString() + " " + e.ToString());
+            };
+            updater.UpdateGfwListFromUri();
+
+
 
             Console.WriteLine("Here");
             Console.ReadLine();

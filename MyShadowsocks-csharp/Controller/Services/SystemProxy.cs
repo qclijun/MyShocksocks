@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Shadowsocks.Model;
+using Junlee.Util.SystemProxy;
 
 namespace Shadowsocks.Controller
 {
@@ -15,6 +16,7 @@ namespace Shadowsocks.Controller
 
         public static void Update(Configuration config, bool forceDisable)
         {
+            
             bool global = config.Global;
             bool enabled = config.Enabled;
             if (forceDisable) enabled = false;
@@ -22,8 +24,21 @@ namespace Shadowsocks.Controller
             {
                 if (global)
                 {
-                    //WinINet
+                    WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_Direct, $"127.0.0.1:{config.LocalPort}", null);
                 }
+                else
+                {
+                    string pacUrl;
+                    if (config.UseOnlinePac && !string.IsNullOrEmpty(config.PacUrl))
+                        pacUrl = config.PacUrl;
+                    else
+                        pacUrl = $"http://127.0.0.1:{config.LocalPort}/pac?t={GetTimestamp(DateTime.Now)}";
+                    WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, null, pacUrl);
+                }
+            }
+            else //no proxy
+            {
+                WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_None, null, null);
             }
         }
         

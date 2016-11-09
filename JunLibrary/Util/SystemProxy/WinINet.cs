@@ -12,7 +12,7 @@
  
  THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, 
  EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
+ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.   
 \***************************************************************************/
 
 using System;
@@ -24,14 +24,15 @@ namespace Junlee.Util.SystemProxy
 {
     public static class WinINet
     {
-        public enum IEProxyOption
+        public enum SystemProxyOption
         {
-            Direct = 0, // direct no proxy
+            Proxy_None = 0, // direct no proxy
             Proxy_Direct = 1,
-            Proxy_PAC = 2,
+            Proxy_PAC = 2
+            
         }
 
-        private static void SetIEProxy(bool enable, bool global, string proxyServer, string pacUrl, string connName)
+        private static void SetSystemProxy(bool enable, bool global, string proxyServer, string pacUrl, string connName)
         {
             List<INTERNET_PER_CONN_OPTION> optionList = new List<INTERNET_PER_CONN_OPTION>();
             if (enable)
@@ -109,6 +110,7 @@ namespace Junlee.Util.SystemProxy
             Marshal.FreeCoTaskMem(intptrStruct);
             if (!bReturn)
             {
+                
                 throw new Exception("InternetSetOption: " + Marshal.GetLastWin32Error());
             }
 
@@ -132,7 +134,7 @@ namespace Junlee.Util.SystemProxy
 
         }
 
-        private static void SetIEProxy(bool enable, bool global, string proxyServer, string pacUrl)
+        private static void SetSystemProxy(bool enable, bool global, string proxyServer, string pacUrl)
         {
             string[] allConnections = null;
 
@@ -143,32 +145,32 @@ namespace Junlee.Util.SystemProxy
             else if (ret == 1)
             {
                 // no entries, only set LAN
-                SetIEProxy(enable, global, proxyServer, pacUrl, null);
+                SetSystemProxy(enable, global, proxyServer, pacUrl, null);
             }
             else if (ret == 0)
             {
-                SetIEProxy(enable, global, proxyServer, pacUrl, null);
+                SetSystemProxy(enable, global, proxyServer, pacUrl, null);
                 foreach (string connName in allConnections)
                 {
                     //Console.WriteLine($"Connection name: {connName}");
-                    SetIEProxy(enable, global, proxyServer, pacUrl, connName);
+                    SetSystemProxy(enable, global, proxyServer, pacUrl, connName);
                 }
             }
         }
 
         // connName = null for LAN
-        public static void SetIEProxy(IEProxyOption option, string proxyServer, string pacUrl, string connName)
+        public static void SetSystemProxy(SystemProxyOption option, string proxyServer, string pacUrl, string connName)
         {
             switch (option)
             {
-                case IEProxyOption.Direct:
-                    SetIEProxy(false, false, null, null, connName);
+                case SystemProxyOption.Proxy_None:
+                    SetSystemProxy(false, false, null, null, connName);
                     break;
-                case IEProxyOption.Proxy_Direct:
-                    SetIEProxy(true, true, proxyServer, null, connName);
+                case SystemProxyOption.Proxy_Direct:
+                    SetSystemProxy(true, true, proxyServer, null, connName);
                     break;
-                case IEProxyOption.Proxy_PAC:
-                    SetIEProxy(true, false, null, pacUrl, connName);
+                case SystemProxyOption.Proxy_PAC:
+                    SetSystemProxy(true, false, null, pacUrl, connName);
                     break;
                 default:
                     break;
@@ -177,7 +179,7 @@ namespace Junlee.Util.SystemProxy
 
 
         // set ie proxy to all connections
-        public static void SetIEProxy(IEProxyOption option, string proxyServer, string pacUrl)
+        public static void SetSystemProxy(SystemProxyOption option, string proxyServer, string pacUrl)
         {
             string[] allConnections = null;
 
@@ -188,15 +190,15 @@ namespace Junlee.Util.SystemProxy
             else if (ret == 1)
             {
                 // no entries, only set LAN
-                SetIEProxy(option, proxyServer, pacUrl, null);
+                SetSystemProxy(option, proxyServer, pacUrl, null);
             }
             else if (ret == 0)
             {
-                SetIEProxy(option, proxyServer, pacUrl, null);
+                SetSystemProxy(option, proxyServer, pacUrl, null);
                 foreach (string connName in allConnections)
                 {
                     //Console.WriteLine($"Connection name: {connName}");
-                    SetIEProxy(option, proxyServer, pacUrl, connName);
+                    SetSystemProxy(option, proxyServer, pacUrl, connName);
                 }
             }
 

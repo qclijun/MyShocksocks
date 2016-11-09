@@ -9,3 +9,6 @@ C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShado
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\Shadowsocks.exe
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\Shadowsocks.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\JunLibrary.dll
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\JunLibrary.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\JunLibrary.xml

@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="JunLibrary">
+      <HintPath>..\artifacts\bin\JunLibrary\Debug\dotnet\JunLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>3rd\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -50,10 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\Services\GfwUpdater.cs" />
     <Compile Include="Controller\Services\AvailabilityStatistics.cs" />
     <Compile Include="Controller\FileManager.cs" />
     <Compile Include="Controller\Services\GFWListUpdater.cs" />
     <Compile Include="Controller\I18N.cs" />
+    <Compile Include="Controller\Services\PACServer2.cs" />
     <Compile Include="Controller\Services\PrivoxyRunner.cs" />
     <Compile Include="Controller\Services\PACServer.cs" />
     <Compile Include="Controller\Services\Service.cs" />
