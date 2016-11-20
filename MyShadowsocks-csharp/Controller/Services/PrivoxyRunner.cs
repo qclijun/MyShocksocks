@@ -11,16 +11,18 @@ using System.Net.NetworkInformation;
 using System.Net;
 using System.Runtime.InteropServices;
 
-using Shadowsocks.Properties;
-using Shadowsocks.Util.ProcessManagement;
-using Shadowsocks.Util;
-using Shadowsocks.Model;
+using MyShadowsocks.Properties;
+using MyShadowsocks.Util.ProcessManagement;
+using MyShadowsocks.Util;
+using MyShadowsocks.Model;
+using NLog;
 
-
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     class PrivoxyRunner
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private static int Uid;
         private static string UniqueConfigFile;
         private static Job PrivoxyJob;
@@ -40,7 +42,7 @@ namespace Shadowsocks.Controller
                 FileManager.UncompressFile(Utils.GetTempPath("mgwz.dll"), Resources.mgwz_dll);
             }catch(IOException ex)
             {
-                Logging.LogUsefulException(ex);
+                logger.Error(ex.Message);
             }
         }
 
@@ -105,7 +107,7 @@ namespace Shadowsocks.Controller
                 }
             }catch(Exception ex)
             {
-                Logging.LogUsefulException(ex);
+                logger.Error(ex.Message);
             }
         }
 
@@ -119,7 +121,7 @@ namespace Shadowsocks.Controller
                     return Utils.GetTempPath("ss_privoxy.exe").Equals(path);
                 }catch(Exception ex)
                 {
-                    Logging.LogUsefulException(ex);
+                    logger.Error(ex.Message);
                     return false;
                 }
             }
@@ -158,7 +160,7 @@ namespace Shadowsocks.Controller
             }
             catch(Exception ex)
             {
-                Logging.LogUsefulException(ex);
+                logger.Error(ex.Message);
                 return defaultPort;
             }
             throw new Exception("No free port found.");

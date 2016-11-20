@@ -8,15 +8,18 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 
-using Shadowsocks.Model;
-using Shadowsocks.Properties;
+using MyShadowsocks.Model;
+using MyShadowsocks.Properties;
 using Newtonsoft.Json;
-using Shadowsocks.Util;
+using MyShadowsocks.Util;
+using NLog;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     public class PACServer2 : Service
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public const string PAC_FILE = "pac.txt";
         public const string USER_RULE_FILE = "user-rule.txt";
         public const string USER_ABP_FILE = "abp.txt";
@@ -122,7 +125,7 @@ namespace Shadowsocks.Controller
             if (File.Exists(PAC_FILE))
                 return File.ReadAllText(PAC_FILE, Encoding.UTF8);
             else
-                return Shadowsocks.Util.Utils.UnGzip(Resources.proxy_pac_txt);
+                return MyShadowsocks.Util.Utils.UnGzip(Resources.proxy_pac_txt);
         }
 
         private string GetPACAddress(byte[] requestBuf, int length, IPEndPoint localEndPoint, bool useSocks)
@@ -151,7 +154,7 @@ Connection: Close
             }
             catch (Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
                 socket.Close();
             }
         }
@@ -206,10 +209,10 @@ Connection: Close
             {
                 case WatcherChangeTypes.Renamed:
                     RenamedEventArgs re = (RenamedEventArgs)e;
-                    Logging.Info($"Detected: User rule file '{re.OldName}' renamed to {re.Name}.");
+                    logger.Info($"Detected: User rule file '{re.OldName}' renamed to {re.Name}.");
                     break;
                 default:
-                    Logging.Info($"Detected: User rule file '{e.Name}' {e.ChangeType.ToString().ToLower()}.");
+                    logger.Info($"Detected: User rule file '{e.Name}' {e.ChangeType.ToString().ToLower()}.");
                     break;
             }
 
@@ -227,7 +230,7 @@ Connection: Close
             DateTime value;
             if (!fileChangedTime.TryGetValue(path, out value) || ( currentLastWriteTime- value).TotalSeconds>=1 )
             {
-                Logging.Info($"Detected: User rule file '{e.Name}' modified.");
+                logger.Info($"Detected: User rule file '{e.Name}' modified.");
                 
                 fileChangedTime[path] = currentLastWriteTime;
                 OnProxyRulesChanged(sender, e);
@@ -341,7 +344,7 @@ Connection: Close
             var handler = PACFileChanged;
             if (handler != null)
             {
-                Logging.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
+                logger.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
                 handler(sender, e);
             }
         }

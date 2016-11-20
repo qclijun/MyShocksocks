@@ -6,12 +6,12 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-using Shadowsocks.Properties;
-using Shadowsocks.Util;
+using MyShadowsocks.Properties;
+using MyShadowsocks.Util;
 using Newtonsoft.Json;
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
 
     public class GfwUpdater

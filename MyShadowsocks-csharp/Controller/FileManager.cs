@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     static class FileManager
     {
@@ -23,14 +23,15 @@ namespace Shadowsocks.Controller
         }
         public static void UncompressFile(string fileName, byte[] content)
         {
-            byte[] buffer = new byte[4096];
-            int n;
+            //byte[] buffer = new byte[4096];
+            //int n;
             using (var fs = File.Create(fileName))
                 using(var input = new System.IO.Compression.GZipStream(new MemoryStream(content),
                     System.IO.Compression.CompressionMode.Decompress, false))
             {
-                while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
-                    fs.Write(buffer, 0, n);
+                //while ((n = input.Read(buffer, 0, buffer.Length)) > 0)
+                //    fs.Write(buffer, 0, n);
+                input.CopyTo(fs);
             }
         }
 

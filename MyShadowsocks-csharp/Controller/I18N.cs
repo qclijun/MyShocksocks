@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     public class I18N
     {
@@ -35,11 +35,11 @@ namespace Shadowsocks.Controller
             {
                 if (name == "zh" || name == "zh-CN")
                 {
-                    Init(Shadowsocks.Properties.Resources.cn);
+                    Init(MyShadowsocks.Properties.Resources.cn);
                 }
                 else
                 {
-                    Init(Shadowsocks.Properties.Resources.zh_tw);
+                    Init(MyShadowsocks.Properties.Resources.zh_tw);
                 }
             }
         }

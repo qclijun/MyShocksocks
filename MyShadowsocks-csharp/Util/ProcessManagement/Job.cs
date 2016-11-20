@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Shadowsocks.Controller;
+using MyShadowsocks.Controller;
 using System.Diagnostics;
+using NLog;
 
-namespace Shadowsocks.Util.ProcessManagement
+namespace MyShadowsocks.Util.ProcessManagement
 {
     class Job : IDisposable
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private IntPtr handle = IntPtr.Zero;
 
         public Job()
@@ -49,7 +52,7 @@ namespace Shadowsocks.Util.ProcessManagement
             bool succ = AssignProcessToJobObject(handle, processHandle);
             if (!succ)
             {
-                Logging.Error("Failed to call AssignProcessToJobObject! GetLastError=" + Marshal.GetLastWin32Error());
+                logger.Error("Failed to call AssignProcessToJobObject! GetLastError=" + Marshal.GetLastWin32Error());
             }
             return succ;
         }

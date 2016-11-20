@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 using Junlee.Util.SystemProxy;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     public static class SystemProxy
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Shadowsocks
+namespace MyShadowsocks
 {
     static class Program
     {
@@ -16,7 +16,7 @@ namespace Shadowsocks
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Shadowsocks.View.ConfigForm());
+            Application.Run(new MyShadowsocks.View.ConfigForm());
         }
     }
 }

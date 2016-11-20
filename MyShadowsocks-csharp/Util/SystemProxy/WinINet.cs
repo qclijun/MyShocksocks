@@ -4,12 +4,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Shadowsocks.Controller;
+using MyShadowsocks.Controller;
+using NLog;
 
-namespace Shadowsocks.Util.SystemProxy
+namespace MyShadowsocks.Util.SystemProxy
 {
     public static class WinINet
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public enum IEProxyOption
         {
             Direct = 0, // direct no proxy
@@ -103,7 +105,7 @@ namespace Shadowsocks.Util.SystemProxy
                 IntPtr.Zero, 0);
             if (!bReturn)
             {
-                Logging.Error("InternetSetOption: INTERNET_OPTION_PROXY_SETTINGS_CHANGED");
+                logger.Error("InternetSetOption: INTERNET_OPTION_PROXY_SETTINGS_CHANGED");
                 
             }
             bReturn = NativeMethods.InternetSetOption(
@@ -112,7 +114,7 @@ namespace Shadowsocks.Util.SystemProxy
                 IntPtr.Zero, 0);
             if (!bReturn)
             {
-                Logging.Error("InternetSetOption: INTERNET_OPTION_REFRESH");
+                logger.Error("InternetSetOption: INTERNET_OPTION_REFRESH");
             }
 
         }

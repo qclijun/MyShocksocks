@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 
 
-namespace Shadowsocks.Controller.Strategy
+namespace MyShadowsocks.Controller.Strategy
 {
     using Statistics = Dictionary<string, List<StatisticsRecord>>;
     class StatisticsStrategy : IStrategy, IDisposable

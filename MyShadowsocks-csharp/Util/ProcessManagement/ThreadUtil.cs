@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Management;
 
-namespace Shadowsocks.Util.ProcessManagement
+namespace MyShadowsocks.Util.ProcessManagement
 {
     static class ThreadUtil
     {

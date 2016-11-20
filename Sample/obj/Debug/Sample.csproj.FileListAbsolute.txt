@@ -6,8 +6,12 @@ c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\
 c:\users\jun\documents\visual studio 2015\Projects\MyShadowsocks-windows\Sample\obj\Debug\Sample.pdb
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Shadowsocks.exe
-C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\Shadowsocks.pdb
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\JunLibrary.dll
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\JunLibrary.pdb
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\JunLibrary.xml
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\NLog.config
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\NLog.dll
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\NLog.xml
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\MyShadowsocks.exe
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\MyShadowsocks.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\NLog.xsd

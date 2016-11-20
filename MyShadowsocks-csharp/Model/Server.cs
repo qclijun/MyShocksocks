@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Shadowsocks.Controller;
+using MyShadowsocks.Controller;
 
-namespace Shadowsocks.Model
+namespace MyShadowsocks.Model
 {
     [Serializable]
     public class Server

@@ -15,8 +15,12 @@ using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
+using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 
-using Shadowsocks.Controller;
+using MyShadowsocks.Encryption;
+using System.Diagnostics;
+using MyShadowsocks.Controller;
 
 namespace Sample
 {
@@ -106,25 +110,43 @@ namespace Sample
             throw new Exception("No free port found.");
         }
 
+        public static string DumpByteArray(byte[] arr, int offset, int length)
+        {
+            StringBuilder sb = new StringBuilder(3 * length);
+            for(int i=offset; i<offset+ length; ++i)
+            {
+                sb.AppendFormat("{0,-3:X2}", arr[i]);
+            }
+            return sb.ToString();
+        }
+
+        public static string DumpByteArray(byte[] arr)
+        {
+            return DumpByteArray(arr, 0, arr.Length);
+        }
 
 
         static void Main(string[] args)
         {
+
             //WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
 
-            DateTime lastWrite = File.GetLastWriteTime("pac.txt");
-            Console.WriteLine(lastWrite);
 
-            PACServer2 pacServer = new PACServer2();
-            pacServer.PACFileChanged += (sender, e) =>
-            {
-                //Console.WriteLine($"{e.Name} {e.ChangeType} {e.FullPath}");
+            MyShadowsocksServer server = new MyShadowsocksServer(1024, 100);
+            server.Start(new IPEndPoint(IPAddress.Loopback, 9090));
+            string path = "clients1.google.com:443";
 
-            };
-            pacServer.GetGfwUpdater().UpdateGfwListFromUri();
+
+            Uri uri = new Uri("http://clients1.google.com:443");
+            Console.WriteLine(uri.Scheme);
+            Console.WriteLine(uri.Host);
+            Console.WriteLine(uri.Port);
+
 
             Console.WriteLine("Here");
             Console.ReadLine();
         }
+
+        
     }
 }

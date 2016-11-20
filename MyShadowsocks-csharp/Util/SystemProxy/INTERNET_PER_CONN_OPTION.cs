@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Runtime.InteropServices;
 
-namespace Shadowsocks.Util.SystemProxy
+namespace MyShadowsocks.Util.SystemProxy
 {
     enum INTERNET_PER_CONN_OptionEnum
     {

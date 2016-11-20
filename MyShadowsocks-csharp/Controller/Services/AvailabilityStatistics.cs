@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     using Newtonsoft.Json;
     using System.Collections.Concurrent;
@@ -15,8 +15,12 @@ namespace Shadowsocks.Controller
     using System.Net.NetworkInformation;
     using System.Threading;
     using Statistics = Dictionary<string, List<StatisticsRecord>>;
+    using NLog;
+
     public sealed class AvailabilityStatistics : IDisposable
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         private const string DateTimePattern = "yyyy-MM-dd HH:mm:ss";
         private const string StatisticsFilesName = "shadowsocks.availability.json";
 
@@ -113,7 +117,7 @@ namespace Shadowsocks.Controller
             }
             catch (Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 
@@ -141,7 +145,7 @@ namespace Shadowsocks.Controller
                 inR.Add(inboundSpeed);
                 outR.Add(outboundSpeed);
 
-                Logging.Debug($"{id}:  current/max inbound {inboundSpeed}/{inR.Max()} KiB/s, " +
+                logger.Debug($"{id}:  current/max inbound {inboundSpeed}/{inR.Max()} KiB/s, " +
                     $"current/max outbound {outboundSpeed}/{outR.Max()} KiB/s");
             }
         }
@@ -213,7 +217,7 @@ namespace Shadowsocks.Controller
                 AppendRecord(server.Identifier(), record);
 
             }
-            Logging.Debug(string.Format("Ping {0} {1} times, {2}% packages loss, min {3} ms, max {4} ms, avg {5} ms",
+            logger.Debug(string.Format("Ping {0} {1} times, {2}% packages loss, min {3} ms, max {4} ms, avg {5} ms",
                 server.FriendlyName(), 100 - record.PackageLoss * 100, record.MinResponse, record.MaxResponse, record.AverageResponse));  
            if(Interlocked.Decrement(ref state.counter) == 0)
             {
@@ -240,13 +244,13 @@ namespace Shadowsocks.Controller
                 records.Add(record);
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 
         private void Save()
         {
-            Logging.Debug($"save statistics to {AvailabilityStatisticsFile}");
+            logger.Debug($"save statistics to {AvailabilityStatisticsFile}");
             if (RawStatistics.Count == 0) return;
             try
             {
@@ -259,7 +263,7 @@ namespace Shadowsocks.Controller
                 File.WriteAllText(AvailabilityStatisticsFile, content);
             }catch(IOException e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 
@@ -277,7 +281,7 @@ namespace Shadowsocks.Controller
         {
             try
             {
-                Logging.Debug("filter raw statistics");
+                logger.Debug("filter raw statistics");
                 if (RawStatistics == null) return;
                 if (FilteredStatistics == null)
                     FilteredStatistics = new Statistics();
@@ -289,7 +293,7 @@ namespace Shadowsocks.Controller
                 }
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 
@@ -298,7 +302,7 @@ namespace Shadowsocks.Controller
             try
             {
                 var path = AvailabilityStatisticsFile;
-                Logging.Debug($"loading statistics from {path}");
+                logger.Debug($"loading statistics from {path}");
                 if (!File.Exists(path))
                 {
                     using (File.Create(path))
@@ -314,7 +318,7 @@ namespace Shadowsocks.Controller
                 }
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
                 Console.WriteLine($"failed to load statistics; try to reload {_retryInterval.TotalMilliseconds} minutes later");
                 _recorder.Change(_retryInterval, RecordingInterval);
             }
@@ -404,7 +408,7 @@ namespace Shadowsocks.Controller
             {
                 try
                 {
-                    Logging.Debug($"Ping {server.FriendlyName()}");
+                    logger.Debug($"Ping {server.FriendlyName()}");
                     if (ip == null)
                     {
                         ip = Dns.GetHostAddresses(server.ServerName)
@@ -418,8 +422,8 @@ namespace Shadowsocks.Controller
                     ping.SendAsync(ip, TimeoutMilliseconds, userState);
                 }catch(Exception e)
                 {
-                    Logging.Error($"An Exception occured while evaluating {server.FriendlyName()}");
-                    Logging.LogUsefulException(e);
+                    logger.Error($"An Exception occured while evaluating {server.FriendlyName()}");
+                    logger.Error(e.Message);
                     FireCompleted(e, userState);
                 }
             }
@@ -430,19 +434,19 @@ namespace Shadowsocks.Controller
                 {
                     if (e.Reply.Status == IPStatus.Success)
                     {
-                        Logging.Debug($"Ping {server.FriendlyName()} {e.Reply.RoundtripTime} ms");
+                        logger.Debug($"Ping {server.FriendlyName()} {e.Reply.RoundtripTime} ms");
                         RoundtripTime.Add((int)e.Reply.RoundtripTime);
                     }
                     else
                     {
-                        Logging.Debug($"Ping {server.FriendlyName()} timeout");
+                        logger.Debug($"Ping {server.FriendlyName()} timeout");
                         RoundtripTime.Add(null);
                     }
                     TestNext(e.UserState);
                 }catch(Exception ex)
                 {
-                    Logging.Error($"An exception occured while evaluating {server.FriendlyName()}");
-                    Logging.LogUsefulException(ex);
+                    logger.Error($"An exception occured while evaluating {server.FriendlyName()}");
+                    logger.Error(ex.Message);
                     FireCompleted(ex, e.UserState);
                 }
             }

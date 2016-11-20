@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 
-namespace Shadowsocks.Controller.Strategy
+namespace MyShadowsocks.Controller.Strategy
 {
     public enum IStrategyCallerType
     {

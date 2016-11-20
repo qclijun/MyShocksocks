@@ -1,17 +1,21 @@
 ﻿using Newtonsoft.Json;
-using Shadowsocks.Controller;
+using MyShadowsocks.Controller;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
-namespace Shadowsocks.Model
+namespace MyShadowsocks.Model
 {
     [Serializable]
     public class StatisticsStrategyConfiguration
     {
+        
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public const string ID = "com.shadowsocks.strategy.statistics";
         public bool StatisticsEnabled { get; set; } = false;
         public bool ByHourOfDay { get; set; } = true;
@@ -46,7 +50,7 @@ namespace Shadowsocks.Model
                 return configuration;
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
                 return new StatisticsStrategyConfiguration();
             }
         }
@@ -59,7 +63,7 @@ namespace Shadowsocks.Model
                 File.WriteAllText(ConfigFile, content);
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
 
 
@@ -13,5 +13,10 @@ namespace Shadowsocks.Controller
     {
         public abstract bool Handle(byte[] firstPacket, int length, Socket socket, object state);
         public virtual void Stop() { }
+
+        protected Service()
+        {
+
+        }
     }
 }

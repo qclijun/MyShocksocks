@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Shadowsocks.Model;
-using Shadowsocks.Controller;
+using MyShadowsocks.Model;
+using MyShadowsocks.Controller;
 
-namespace Shadowsocks.View
+namespace MyShadowsocks.View
 {
     public partial class ConfigForm : Form
     {

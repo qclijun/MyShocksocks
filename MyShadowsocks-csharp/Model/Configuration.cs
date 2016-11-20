@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 
 using System.IO;
 
-using Shadowsocks.Controller;
+using MyShadowsocks.Controller;
 using Newtonsoft.Json;
+using NLog;
 
-namespace Shadowsocks.Model
+namespace MyShadowsocks.Model
 {
     [Serializable]
     public sealed class Configuration
     {
+
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public List<Server> ServerList
         {
             get; set;
@@ -94,7 +98,7 @@ namespace Shadowsocks.Model
             }
             catch (Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
                 return GetDefaultConfig();
             }
         }
@@ -118,7 +122,7 @@ namespace Shadowsocks.Model
             }
             catch (IOException e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
             }
         }
 

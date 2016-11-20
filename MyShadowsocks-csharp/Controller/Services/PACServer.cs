@@ -8,13 +8,17 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Globalization;
 
-using Shadowsocks.Model;
-using Shadowsocks.Properties;
+using MyShadowsocks.Model;
+using MyShadowsocks.Properties;
+using NLog;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     class PACServer : Service
     {
+
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         public const string PAC_FILE = "pac.txt";
         public const string USER_RULE_FILE = "user-rule.txt";
         public const string USER_ABP_FILE = "abp.txt";
@@ -95,7 +99,7 @@ namespace Shadowsocks.Controller
             if (File.Exists(PAC_FILE))
                 return File.ReadAllText(PAC_FILE, Encoding.UTF8);
             else
-                return Shadowsocks.Util.Utils.UnGzip(Resources.proxy_pac_txt);
+                return MyShadowsocks.Util.Utils.UnGzip(Resources.proxy_pac_txt);
         }
 
         private string GetPACAddress(byte[] requestBuf, int length, IPEndPoint localEndPoint, bool useSocks)
@@ -123,7 +127,7 @@ Connection: Close
                 Util.Utils.ReleaseMemory(true);
             }catch(Exception e)
             {
-                Logging.LogUsefulException(e);
+                logger.Error(e.Message);
                 socket.Close();
             }
         }
@@ -174,7 +178,7 @@ Connection: Close
             {
                 if (UserRuleFileChanged != null)
                 {
-                    Logging.Info($"Detected: User Rule file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
+                    logger.Info($"Detected: User Rule file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
                     UserRuleFileChanged(this, new EventArgs());
                 }
                 fileChangedTime[path] = currentLastWriteTime;
@@ -193,7 +197,7 @@ Connection: Close
             {
                 if (PACFileChanged != null)
                 {
-                    Logging.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
+                    logger.Info($"Detected: PAC file '{e.Name}' was {e.ChangeType.ToString().ToLower()}.");
                     PACFileChanged(this, new EventArgs());
                 }
                 fileChangedTime[path] = currentLastWriteTime;

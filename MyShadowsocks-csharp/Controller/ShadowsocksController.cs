@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 
-using Shadowsocks.Model;
-using Shadowsocks.Controller.Strategy;
+using MyShadowsocks.Model;
+using MyShadowsocks.Controller.Strategy;
 using System.IO;
 
-namespace Shadowsocks.Controller
+namespace MyShadowsocks.Controller
 {
     public class ShadowsocksController
     {

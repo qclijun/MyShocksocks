@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using Shadowsocks.Model;
+using MyShadowsocks.Model;
 
-namespace Shadowsocks.Controller.Strategy
+namespace MyShadowsocks.Controller.Strategy
 {
     class BalancingStrategy : IStrategy
     {

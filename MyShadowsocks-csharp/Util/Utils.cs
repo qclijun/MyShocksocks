@@ -8,11 +8,13 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
+using NLog;
 
-namespace Shadowsocks.Util
+namespace MyShadowsocks.Util
 {
     class Utils
     {
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private static bool _portableMode;
         private static string tempPath = null;
 
@@ -36,7 +38,7 @@ namespace Shadowsocks.Util
                     catch (Exception e)
                     {
                         tempPath = Path.GetTempPath();
-                        Shadowsocks.Controller.Logging.LogUsefulException(e);
+                        logger.Error(e.Message);
                     }
                     finally
                     {

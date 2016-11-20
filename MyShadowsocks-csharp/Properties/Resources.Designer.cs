@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Shadowsocks.Properties {
+namespace MyShadowsocks.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Shadowsocks.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shadowsocks.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MyShadowsocks.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -98,6 +98,16 @@ namespace Shadowsocks.Properties {
         internal static string cn {
             get {
                 return ResourceManager.GetString("cn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] libsscrypto_dll {
+            get {
+                object obj = ResourceManager.GetObject("libsscrypto_dll", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

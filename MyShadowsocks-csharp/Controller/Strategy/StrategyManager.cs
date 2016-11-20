@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Shadowsocks.Controller.Strategy;
+using MyShadowsocks.Controller.Strategy;
 
-namespace Shadowsocks.Controller.Strategy
+namespace MyShadowsocks.Controller.Strategy
 {
     class StrategyManager
     {
