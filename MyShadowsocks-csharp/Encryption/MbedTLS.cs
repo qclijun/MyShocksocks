@@ -12,42 +12,37 @@ using MyShadowsocks.Properties;
 
 using NLog;
 
-namespace MyShadowsocks.Encryption
-{
-    public static class MbedTLS
-    {
+namespace MyShadowsocks.Encryption {
+    public static class MbedTLS {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private const string DllName = "libsscrypto.dll";
-        
+
 
         public const int MbedTLS_Encrypt = 1;
         public const int MbedTLS_Decrypt = 0;
 
-        static MbedTLS(){
+        static MbedTLS() {
             string dllPath = (DllName);
-            try
-            {
-                FileManager.UncompressFile(dllPath, Resources.libsscrypto_dll);
-            }catch(IOException ex)
-            {
+            try {
+                if(!File.Exists(dllPath))
+                    FileManager.UncompressFile(dllPath, Resources.libsscrypto_dll);
+            } catch(IOException ex) {
                 logger.Error("failed to write to file {0}. Exception message: {1}",
-                    dllPath,ex.Message);
+                    dllPath, ex.Message);
                 throw;
             }
             Util.Interops.LoadLibrary(dllPath);
-       }
+        }
 
-        public static byte[] MD5(byte[] input)
-        {
+        public static byte[] MD5(byte[] input) {
             byte[] output = new byte[16];
             md5(input, (uint)input.Length, output);
             return output;
         }
-        public static void MD5(byte[] input, byte[] result)
-        {
+        public static void MD5(byte[] input, byte[] result) {
             md5(input, (uint)input.Length, result);
         }
-    
+
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]

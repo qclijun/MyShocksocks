@@ -15,3 +15,6 @@ C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\MyShadowsocks.exe
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\MyShadowsocks.pdb
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\NLog.xsd
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\Sample\bin\Debug\HtmlAgilityPack.xml

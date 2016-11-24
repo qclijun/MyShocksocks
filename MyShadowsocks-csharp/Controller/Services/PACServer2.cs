@@ -36,7 +36,7 @@ namespace MyShadowsocks.Controller
         {
             _gfwUpdater = new GfwUpdater();
             _gfwUpdater.GfwFileChanged += OnProxyRulesChanged;
-            _config = Configuration.Instance;
+            _config = Program.Config;
             this.WatchPacFile();
             this.WatchUserRuleFile();
 

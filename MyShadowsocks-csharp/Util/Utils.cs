@@ -70,6 +70,20 @@ namespace MyShadowsocks.Util
         }
 
 
+        public static string DumpByteArray(byte[] data, int offset, int count) {
+            StringBuilder sb = new StringBuilder(count * 3 + 10);
+            for(int i = 0;i < count;++i) {
+                sb.AppendFormat("{0,-3:X2}", data[i]);
+            }
+            return sb.ToString();
+        }
+
+        public static string DumpByteArray(byte[] data) {
+            return DumpByteArray(data, 0, data.Length);
+
+        }
+
+
 
         public static void ReleaseMemory(bool removePages)
         {

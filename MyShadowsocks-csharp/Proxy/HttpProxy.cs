@@ -83,8 +83,8 @@ namespace MyShadowsocks.Proxy
             {
                 _remote.EndSend(ar);
                 //
-                new LineReader(_remote, OnLineRead, OnException, OnFinish, Encoding.UTF8, HTTP_CRLF,
-                    1024, new FakeAsyncResult(ar, state));
+                //new LineReader(_remote, OnLineRead, OnException, OnFinish, Encoding.UTF8, HTTP_CRLF,
+                //    1024, new FakeAsyncResult(ar, state));
             }catch(Exception ex)
             {
                 state.Ex = ex;

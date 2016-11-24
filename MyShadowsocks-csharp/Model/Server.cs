@@ -28,16 +28,7 @@ namespace MyShadowsocks.Model
         public bool Auth { get; set; } = false;
         public int Timeout { get; set; } = DefaultServerTimeoutSec;
 
-        public override int GetHashCode()
-        {
-            return ServerName.GetHashCode() ^ ServerPort;
-        }
-
-        public override bool Equals(object obj)
-        {
-            Server o2 = (Server)obj;
-            return ServerName == o2.ServerName && ServerPort == o2.ServerPort;
-        }
+ 
 
         public string FriendlyName()
         {
@@ -46,23 +37,11 @@ namespace MyShadowsocks.Model
                 return I18N.GetString("New server");
        
             }
-            string serverStr;
-
-            var hostType = Uri.CheckHostName(ServerName);
-            if (hostType == UriHostNameType.Unknown)
-                throw new FormatException("Invalid Server Address.");
-            switch (hostType)
-            {
-                case UriHostNameType.IPv6:
-                    serverStr = $"[{ServerName}]:{ServerPort}";
-                    break;
-                default:
-                    serverStr = $"{ServerName}:{ServerPort}";
-                    break;
-            }
-            return string.IsNullOrEmpty(Remarks) ? serverStr :
-                $"{Remarks}({serverStr})";
+            return string.IsNullOrEmpty(Remarks) ? ToString() : $"{Remarks}({ToString()})";
         }
+
+        
+
 
         public Server()
         {
@@ -85,7 +64,28 @@ namespace MyShadowsocks.Model
 
         public string Identifier()
         {
-            return $"{ServerName}:{ServerPort}";
+            return ToString();
         }
+
+        public override string ToString() {
+            return ServerName + ":" + ServerPort;
+        }
+
+
+        public Server Clone() {
+            return (Server)this.MemberwiseClone();
+        }
+
+
+        public static List<Server> CloneList(List<Server> list) {
+            List<Server> ret = new List<Server>(list.Count);
+            foreach(var s in list) {
+                ret.Add((Server)s.MemberwiseClone());
+            }
+            
+            return ret;
+        }
+
+
     }
 }

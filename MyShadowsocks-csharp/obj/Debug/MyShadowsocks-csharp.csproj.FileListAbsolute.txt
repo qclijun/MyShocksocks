@@ -16,3 +16,7 @@ C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShado
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.csprojResolveAssemblyReference.cache
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\NLog.xsd
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\NLog.config
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.rewritten
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\HtmlAgilityPack.xml
