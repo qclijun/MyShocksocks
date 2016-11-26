@@ -26,12 +26,12 @@ namespace MyShadowsocks.Controller {
             
             Task t = Task.Delay(TimeSpan.FromSeconds(timeout));
 
+            
             if(t == await Task.WhenAny(t, download)) {
-                Program.DefaultLogger.Debug("connect to {0} timout", url);
-                return serverList;
+                throw new TimeoutException("download from " + url + " time out.");
             }
 
-            byte[] data = await download;
+            byte[] data = await download; //may throw exception
 
 
             HtmlDocument doc = new HtmlDocument();
@@ -59,16 +59,17 @@ namespace MyShadowsocks.Controller {
                             s.Method = text.Substring(index + 1);
                         } else if(text.IndexOf("服务器地址") != -1) {
                             int index = text.IndexOf(':');
-                            s.ServerName = text.Substring(index + 1);
+                            s.HostName = text.Substring(index + 1);
                         }
                     }
 
-                    if(s.ServerName != "" && s.Password != "")
+                    if(s.HostName != "" && s.Password != "")
                         serverList.Add(s);
 
 
                 }
             } catch(Exception) {
+                //catch parse exception
                 return serverList;
             }
             #endregion
@@ -97,7 +98,7 @@ namespace MyShadowsocks.Controller {
             foreach(var s in serverList) {
                 for(int i = 0;i < newList.Count;++i) {
                     if(flags[i]) continue;
-                    if(string.Equals(s.ServerName, newList[i].ServerName, StringComparison.OrdinalIgnoreCase)) {
+                    if(string.Equals(s.HostName, newList[i].HostName, StringComparison.OrdinalIgnoreCase)) {
                         flags[i] = true;
                         if(s.Password != newList[i].Password) {
                             s.Password = newList[i].Password;

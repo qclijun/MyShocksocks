@@ -15,8 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Junlee.Util.SystemProxy
-{
+namespace Jun.Net.SystemProxy {
     internal enum INTERNET_OPTION
     {
         // Sets or retrieves an INTERNET_PER_CONN_OPTION_LIST structure that specifies

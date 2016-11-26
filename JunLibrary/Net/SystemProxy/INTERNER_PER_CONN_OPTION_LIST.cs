@@ -20,8 +20,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Junlee.Util.SystemProxy
-{
+namespace Jun.Net.SystemProxy {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     struct INTERNET_PER_CONN_OPTION_LIST : IDisposable
     {

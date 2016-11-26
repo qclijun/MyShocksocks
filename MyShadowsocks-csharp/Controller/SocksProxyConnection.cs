@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Junlee.Util.Sockets;
-using MyShadowsocks.Encryption;
+using Jun;
+using Jun.Net;
 using MyShadowsocks.Model;
 using MyShadowsocks.Util;
 using NLog;
@@ -16,7 +12,8 @@ using NLog;
 namespace MyShadowsocks.Controller {
     public class SocksProxyConnection : ProxyConnection {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private static IServerProvider Sp = new SimpleServerProvider();
+        private static IServerProvider Sp = new FailureRankServerProvider();
+        private static EncryptorPool Pool = new EncryptorPool();
 
         private Server _currentServer;
 
@@ -41,7 +38,7 @@ namespace MyShadowsocks.Controller {
                 if(firstPackage.Length < 2)
                     throw new SocketException((int)SocketError.ProtocolType);
                 logger.Debug("receive {0} bytes from {1}", firstPackage.Length, ClientSocket.RemoteEndPoint);
-                logger.Debug("first package: " + Utils.DumpByteArray(firstPackage));
+                logger.Debug("first package: " + Jun.Utils.DumpByteArray(firstPackage));
 
 
                 byte[] respose = { 5, 0 };
@@ -62,11 +59,12 @@ namespace MyShadowsocks.Controller {
                 Task dispatch = DispatchCmd(ClientBuffer, bytesRead);
 
                 logger.Debug("receive {0} bytes from {1}", bytesRead, ClientSocket.RemoteEndPoint);
-                logger.Debug("first package: " + Utils.DumpByteArray(ClientBuffer, 0, bytesRead));
+                logger.Debug("first package: " + Jun.Utils.DumpByteArray(ClientBuffer, 0, bytesRead));
 
-                await Task.WhenAll(dispatch, StartConnect()).ContinueWith(async (ans) => {
-                    await StartPipe();
-                });
+                
+                await Task.WhenAll(dispatch, StartConnect()).ContinueWith((ans) => {
+                    StartPipe();
+                }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
 
             } catch(Exception ex) {
@@ -105,11 +103,12 @@ namespace MyShadowsocks.Controller {
 
 
         private async Task StartConnect() {
-            var s = Sp.GetAServer();
+            int index = Sp.GetAServerIndex();
+            var s = MyShadowsocksController.ServerList[index];
             _currentServer = s;
             try {
 
-                IPAddress[] addrList = Dns.GetHostAddresses(s.ServerName);
+                IPAddress[] addrList = Dns.GetHostAddresses(s.HostName);
                 int port = s.ServerPort;
                 var timeout = s.Timeout;
                 ServerSocket = new Socket(addrList[0].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -125,12 +124,14 @@ namespace MyShadowsocks.Controller {
 
 
                 } else {
-                    logger.Info(s.FriendlyName() + " time out");
+                    logger.Info("failed to connect ss server "+ s.ToString() + ": time out");
+                    Sp.SetFailure(index);
                     OnException();
                 }
 
             } catch(Exception ex) {
-                OnException($"failed to connect to ss server: {s.FriendlyName()}. {ex.Message}");
+                Sp.SetFailure(index);
+                OnException($"failed to connect  ss server {s.ToString()}. {ex.TypeAndMessage()}");
             }
         }
 
@@ -142,11 +143,11 @@ namespace MyShadowsocks.Controller {
         #region StartPipe        
 
         //使用ServerBuffer和ServerCipherBuffer
-        //catched all exception
+        
         protected override async Task StartPipeS2C() {
             //decryptor变成局部变量，而不需要成为类的字段，当异步任务结束时（连接中断或出现异常时）释放decryptor
             //另一个选择是成为类的字段，调用Close()的时候释放
-            var decryptor = Program.Cache.GetDecryptor(_currentServer);
+            var decryptor = Pool.GetDecryptor(_currentServer);
 
             bool firstTime = true;
             int bytesToSend = 0;
@@ -184,18 +185,16 @@ namespace MyShadowsocks.Controller {
                 }//End while
             } catch(ObjectDisposedException) {
                 //ignore: socket already closed
-            } catch(Exception ex) {
-                OnException(ex.ToString());
             } finally {
                 //free decryptor
-                Program.Cache.FreeEncryptor(decryptor);
+                Pool.FreeEncryptor(decryptor);
             }
         }
 
         //使用ClientBuffer和ClientCipherBuffer
-        //catched all exception
+        
         protected override async Task StartPipeC2S() {
-            var encryptor = Program.Cache.GetEncryptor(_currentServer);
+            var encryptor = Pool.GetEncryptor(_currentServer);
             bool firstTime = true;
             int bytesToSend = 0;
 
@@ -205,9 +204,9 @@ namespace MyShadowsocks.Controller {
 
                     int bytes = await t1;
 
-                    logger.Debug("Receive: {0} bytes from Client: {1}", bytes, this.ToString());
+                    logger.Debug("Receive: {0} bytes from Client: {1}", bytes, this);
                     if(bytes == 0) {
-                        logger.Debug("Close Connection from Client: " + this.ToString());
+                        logger.Debug("Close Connection from Client: " + this);
                         Close();
                         break;
                     }
@@ -223,7 +222,7 @@ namespace MyShadowsocks.Controller {
 
                     bytes = await ServerSocket.SendTaskAsync(ClientCipherBuffer, 0, bytesToSend, SocketFlags.None);
 
-                    logger.Debug("Send: {0} bytes to Server: {1}", bytes, this.ToString());
+                    logger.Debug("Send: {0} bytes to Server: {1}", bytes, this);
                     if(bytes <= 0) {
                         logger.Error("Send failed: " + this);
                         throw new SocketException((int)SocketError.OperationAborted);
@@ -231,10 +230,8 @@ namespace MyShadowsocks.Controller {
                 }
             } catch(ObjectDisposedException) {
                 //ignore: socket already closed
-            } catch(Exception ex) {
-                OnException(ex.ToString());
             } finally {
-                Program.Cache.FreeEncryptor(encryptor);
+                Pool.FreeEncryptor(encryptor);
             }
         }
 

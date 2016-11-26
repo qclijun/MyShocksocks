@@ -62,6 +62,10 @@ namespace MyShadowsocks.Encryption {
             { "rc4-md5", new IVEncryptorInfo("ARC4-128", 16, 16, EncryptorType.RC4) }
         };
 
+        public static IEnumerable<string> SupportedMethods() {
+            return _ciphers.Keys;
+        }
+
 
         public void SetKey(string password) {
             Key = CreateKey(password, Info.KeySize);

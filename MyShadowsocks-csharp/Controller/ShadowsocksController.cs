@@ -19,7 +19,7 @@ namespace MyShadowsocks.Controller
         private Listener _listener;
         private PACServer _pacServer;
 
-        public Configuration Config => Program.Config;
+        public Configuration Config => MyShadowsocksController.Config;
 
         private StrategyManager _strategyManager;
 

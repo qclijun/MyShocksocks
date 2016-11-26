@@ -93,5 +93,9 @@ namespace MyShadowsocks.Model
         {
             TextColor = ColorTranslator.ToHtml(color);
         }
+
+        public LogViewerConfiguration Clone() {
+            return MemberwiseClone() as LogViewerConfiguration;
+        }
     }
 }

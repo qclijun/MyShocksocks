@@ -23,21 +23,7 @@ namespace MyShadowsocks {
 
 
 
-        private static async Task Init() {
-            //init global objects:
-            Config = Configuration.Load();
-            Cache = new EncryptorPool();
-            try {
-                bool needUpdate = await DownloadServerInfo.UpdateServerList(Config.ServerList);
-                DefaultLogger.Debug("Need Update Server List: " + needUpdate);
-                if(needUpdate) Configuration.Save(Config);
-            }catch(Exception ex) {
-                DefaultLogger.Error("Failed to update server list: "+ex.Message);
-            }
-
-
-            
-        }
+    
 
 
         static void Main() {
@@ -59,9 +45,11 @@ namespace MyShadowsocks {
 
         static async Task MainAsync() {
             try {
-                await Init();
-                ProxyListener listener = new ProxyListener();
-                await listener.StartListen(9050);
+                
+                MyShadowsocksController controller = new MyShadowsocksController();
+
+                await controller.Start();
+
             }catch(Exception ex) {
                 DefaultLogger.Error(ex);
             }
@@ -70,11 +58,10 @@ namespace MyShadowsocks {
 
         public static NLog.Logger DefaultLogger = NLog.LogManager.GetLogger("default");
 
-        public static Configuration Config;
-        public static List<Server> ServerList => Config.ServerList;
+        
 
 
-        public static EncryptorPool Cache;
+        
 
 
 

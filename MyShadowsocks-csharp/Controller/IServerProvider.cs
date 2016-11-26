@@ -8,6 +8,10 @@ using MyShadowsocks.Model;
 
 namespace MyShadowsocks.Controller {
     interface IServerProvider {        
-        Server GetAServer();
+        
+        int GetAServerIndex();
+
+        void SetFailure(int index);
+
     }
 }

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Junlee.Util.SystemProxy
-{
+namespace Jun.Net.SystemProxy {
     internal static class RemoteAccessService
     {
         private enum RasFieldSizeConstants

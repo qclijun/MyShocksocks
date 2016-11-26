@@ -21,8 +21,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Junlee.Util.SystemProxy
-{
+namespace Jun.Net.SystemProxy {
     /// <summary>
     /// Constants used in INTERNET_PER_CONN_OPTION_OptionUnion struct.
     /// </summary>

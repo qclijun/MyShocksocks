@@ -9,88 +9,60 @@ using System.Diagnostics;
 using Microsoft.Win32;
 using System.Runtime.InteropServices;
 using NLog;
+using System.Net.NetworkInformation;
+using System.Net;
 
-namespace MyShadowsocks.Util
-{
-    class Utils
-    {
+namespace MyShadowsocks.Util {
+    class Utils {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private static bool _portableMode;
         private static string tempPath = null;
 
-        public static bool IsPortableMode()
-        {
-            if (_portableMode) return true;
-               _portableMode = File.Exists(Path.Combine(
-                    Application.StartupPath, "shadowsocs_portable_mode.txt"));
+        public static bool IsPortableMode() {
+            if(_portableMode) return true;
+            _portableMode = File.Exists(Path.Combine(
+                 Application.StartupPath, "shadowsocks_portable_mode.txt"));
             return _portableMode;
         }
 
-        public static string GetTempPath()
-        {
-            if (tempPath == null)
-            {
-                if (IsPortableMode())
-                    try
-                    {
+        public static string GetTempPath() {
+            if(tempPath == null) {
+                if(IsPortableMode())
+                    try {
                         Directory.CreateDirectory(Path.Combine(Application.StartupPath, "temp"));
-                    }
-                    catch (Exception e)
-                    {
+                    } catch(Exception e) {
                         tempPath = Path.GetTempPath();
                         logger.Error(e.Message);
-                    }
-                    finally
-                    {
+                    } finally {
                         tempPath = Path.Combine(Application.StartupPath, "temp");
-                    }
-                else
+                    } else
                     tempPath = Path.GetTempPath();
-                
+
             }
             return tempPath;
         }
 
-        public static string GetTempPath(string filename)
-        {
+        public static string GetTempPath(string filename) {
             return Path.Combine(GetTempPath(), filename);
         }
 
-        public static string UnGzip(byte[] buf)
-        {
-            using (MemoryStream sb = new MemoryStream())
-            using (var input = new System.IO.Compression.GZipStream(
+        public static string UnGzip(byte[] buf) {
+            using(MemoryStream sb = new MemoryStream())
+            using(var input = new System.IO.Compression.GZipStream(
                 new MemoryStream(buf),
                 System.IO.Compression.CompressionMode.Decompress,
-                    false)){
+                    false)) {
                 input.CopyTo(sb);
                 return System.Text.Encoding.UTF8.GetString(sb.ToArray());
             }
-            
-        }
-
-
-        public static string DumpByteArray(byte[] data, int offset, int count) {
-            StringBuilder sb = new StringBuilder(count * 3 + 10);
-            for(int i = 0;i < count;++i) {
-                sb.AppendFormat("{0,-3:X2}", data[i]);
-            }
-            return sb.ToString();
-        }
-
-        public static string DumpByteArray(byte[] data) {
-            return DumpByteArray(data, 0, data.Length);
 
         }
 
 
-
-        public static void ReleaseMemory(bool removePages)
-        {
+        public static void ReleaseMemory(bool removePages) {
             GC.Collect(GC.MaxGeneration);
             GC.WaitForPendingFinalizers();
-            if (removePages)
-            {
+            if(removePages) {
                 SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle,
                     (UIntPtr)0xFFFFFFFF,
                     (UIntPtr)0xFFFFFFFF);

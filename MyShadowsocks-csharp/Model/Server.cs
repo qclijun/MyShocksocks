@@ -9,7 +9,7 @@ using MyShadowsocks.Controller;
 namespace MyShadowsocks.Model
 {
     [Serializable]
-    public class Server
+    public class Server 
     {
         public static readonly Regex
             UrlFinder = new Regex("^ss://((?:[A-Za-z0-9_/]+)|((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?))$",
@@ -20,7 +20,7 @@ namespace MyShadowsocks.Model
         private const int DefaultServerTimeoutSec = 5;
         public const int MaxServerTimeoutSec = 20;
 
-        public string ServerName { get; set; } = "";
+        public string HostName { get; set; } = "";
         public int ServerPort { get; set; } = 8388;
         public string Password { get; set; } = "";
         public string Method { get; set; } = "aes-256-cfb";
@@ -28,17 +28,9 @@ namespace MyShadowsocks.Model
         public bool Auth { get; set; } = false;
         public int Timeout { get; set; } = DefaultServerTimeoutSec;
 
- 
 
-        public string FriendlyName()
-        {
-            if (string.IsNullOrEmpty(ServerName))
-            {
-                return I18N.GetString("New server");
-       
-            }
-            return string.IsNullOrEmpty(Remarks) ? ToString() : $"{Remarks}({ToString()})";
-        }
+
+        
 
         
 
@@ -58,33 +50,26 @@ namespace MyShadowsocks.Model
             Method = match.Groups["method"].Value;
             Auth = match.Groups["auth"].Success;
             Password = match.Groups["password"].Value;
-            ServerName = match.Groups["hostname"].Value;
+            HostName = match.Groups["hostname"].Value;
             ServerPort = int.Parse(match.Groups["port"].Value);
         }
 
         public string Identifier()
         {
-            return ToString();
+            return HostName + ":" + ServerPort;
         }
 
         public override string ToString() {
-            return ServerName + ":" + ServerPort;
+            if(string.IsNullOrEmpty(HostName)) {
+                return ("New server");
+            }
+            return string.IsNullOrEmpty(Remarks) ? Identifier() : $"{Remarks}({Identifier()})";
         }
-
 
         public Server Clone() {
-            return (Server)this.MemberwiseClone();
+            return MemberwiseClone() as Server;
         }
-
-
-        public static List<Server> CloneList(List<Server> list) {
-            List<Server> ret = new List<Server>(list.Count);
-            foreach(var s in list) {
-                ret.Add((Server)s.MemberwiseClone());
-            }
-            
-            return ret;
-        }
+  
 
 
     }

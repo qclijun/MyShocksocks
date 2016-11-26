@@ -10,7 +10,7 @@ using MyShadowsocks.Model;
 
 
 namespace MyShadowsocks.Controller {
-    internal sealed class EncryptorPool : IDisposable {
+    public sealed class EncryptorPool : IDisposable {
         
 
         private ConcurrentBag<MbedEncryptor> encryptorPool;

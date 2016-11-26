@@ -101,7 +101,7 @@ namespace MyShadowsocks.Controller.Strategy
                     - 2 * 5 * (Math.Min(2000, status.Latency.TotalMilliseconds) / (1 + (now - status.LastTimeDetectLatency).TotalSeconds / 30 / 10)
                     - 0.5 * 200 * Math.Min(5, (status.LastRead - status.LastWrite).TotalSeconds)
                     );
-                logger.Debug($"server: {status.ThisServer.FriendlyName()} latency: {status.Latency} score: {status.Score}");
+                logger.Debug($"server: {status.ThisServer.ToString()} latency: {status.Latency} score: {status.Score}");
             }
             ServerStatus max = null;
             foreach(var status in statusList)
@@ -114,14 +114,14 @@ namespace MyShadowsocks.Controller.Strategy
                 if (_currentStatus == null || max.Score - _currentStatus.Score > 200)
                 {
                     _currentStatus = max;
-                    logger.Info($"HA switcing to server:  {_currentStatus.ThisServer.FriendlyName()}");
+                    logger.Info($"HA switcing to server:  {_currentStatus.ThisServer.ToString()}");
                 }
             }
         }
 
         public void SetFailure(Server server)
         {
-            logger.Debug($"failure: {server.FriendlyName()}");
+            logger.Debug($"failure: {server.ToString()}");
             ServerStatus status;
             if (_serverStatus.TryGetValue(server, out status))
             {
@@ -131,7 +131,7 @@ namespace MyShadowsocks.Controller.Strategy
 
         public void UpdateLastRead(Server server)
         {
-            logger.Debug($"last read: {server.FriendlyName()}");
+            logger.Debug($"last read: {server.ToString()}");
             ServerStatus status;
             if(_serverStatus.TryGetValue(server,out status))
             {
@@ -141,7 +141,7 @@ namespace MyShadowsocks.Controller.Strategy
 
         public void UpdateLastWrite(Server server)
         {
-            logger.Debug($"last write: {server.FriendlyName()}");
+            logger.Debug($"last write: {server.ToString()}");
             ServerStatus status;
             if (_serverStatus.TryGetValue(server, out status))
             {
@@ -151,7 +151,7 @@ namespace MyShadowsocks.Controller.Strategy
 
         public void UpdateLatency(Server server, TimeSpan latency)
         {
-            logger.Debug($"latency: {server.FriendlyName()} {latency}");
+            logger.Debug($"latency: {server.ToString()} {latency}");
             ServerStatus status;
             if(_serverStatus.TryGetValue(server,out status))
             {

@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Junlee.Util.Sockets {
+namespace Jun.Net {
     public static class SocketAsyncExt {
 
         public static Task<int> ReceiveTaskAsync(this Socket socket, byte[] buffer,

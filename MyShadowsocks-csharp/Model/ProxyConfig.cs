@@ -34,5 +34,10 @@ namespace MyShadowsocks.Model
         {
            
         }
+
+        public ProxyConfiguration Clone() {
+            return MemberwiseClone() as ProxyConfiguration;
+        }
+
     }
 }

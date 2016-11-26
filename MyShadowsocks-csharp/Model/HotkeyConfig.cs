@@ -21,5 +21,9 @@ namespace MyShadowsocks.Model
         {
 
         }
+
+        public HotkeyConfiguration Clone() {
+            return MemberwiseClone() as HotkeyConfiguration;
+        }
     }
 }

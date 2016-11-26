@@ -1,24 +1,38 @@
-﻿using System;
+﻿/****************************** Module Header ******************************\
+ Module Name:  WinINet.cs
+ Project:      CSWebBrowserWithProxy
+ Copyright (c) Microsoft Corporation.
+ 
+ This class is used to set the proxy. or restore to the system proxy for the
+ current application
+ 
+ This source is subject to the Microsoft Public License.
+ See http://www.microsoft.com/opensource/licenses.mspx#Ms-PL.
+ All other rights reserved.
+ 
+ THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, 
+ EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.   
+\***************************************************************************/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using MyShadowsocks.Controller;
-using NLog;
 
-namespace MyShadowsocks.Util.SystemProxy
+namespace Jun.Net.SystemProxy
 {
     public static class WinINet
     {
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        public enum IEProxyOption
+        public enum SystemProxyOption
         {
-            Direct = 0, // direct no proxy
+            Proxy_None = 0, // direct no proxy
             Proxy_Direct = 1,
-            Proxy_PAC = 2,
+            Proxy_PAC = 2
+            
         }
-        private static void SetIEProxy(bool enable,bool global,string proxyServer, string pacUrl,string connName)
+
+        private static void SetSystemProxy(bool enable, bool global, string proxyServer, string pacUrl, string connName)
         {
             List<INTERNET_PER_CONN_OPTION> optionList = new List<INTERNET_PER_CONN_OPTION>();
             if (enable)
@@ -35,12 +49,12 @@ namespace MyShadowsocks.Util.SystemProxy
                     optionList.Add(new INTERNET_PER_CONN_OPTION
                     {
                         dwOption = (int)INTERNET_PER_CONN_OptionEnum.INTERNET_PER_CONN_PROXY_SERVER,
-                        Value = { pszValue = Marshal.StringToHGlobalAuto(proxyServer) }
+                        Value = { pszValue = Marshal.StringToHGlobalUni(proxyServer) }
                     });
                     optionList.Add(new INTERNET_PER_CONN_OPTION
                     {
                         dwOption = (int)INTERNET_PER_CONN_OptionEnum.INTERNET_PER_CONN_PROXY_BYPASS,
-                        Value = { pszValue = Marshal.StringToHGlobalAuto("<local>") }
+                        Value = { pszValue = Marshal.StringToHGlobalUni("<local>") }
                     });
                 }
                 else
@@ -53,7 +67,7 @@ namespace MyShadowsocks.Util.SystemProxy
                     optionList.Add(new INTERNET_PER_CONN_OPTION
                     {
                         dwOption = (int)INTERNET_PER_CONN_OptionEnum.INTERNET_PER_CONN_AUTOCONFIG_URL,
-                        Value = { pszValue = Marshal.StringToHGlobalAuto(pacUrl) }
+                        Value = { pszValue = Marshal.StringToHGlobalUni(pacUrl) }
                     });
                 }
             }
@@ -71,7 +85,7 @@ namespace MyShadowsocks.Util.SystemProxy
             var len = optionList.Sum(x => Marshal.SizeOf(x));
             IntPtr buffer = Marshal.AllocCoTaskMem(len);
             IntPtr current = buffer;
-            foreach(INTERNET_PER_CONN_OPTION eachOption in optionList)
+            foreach (INTERNET_PER_CONN_OPTION eachOption in optionList)
             {
                 Marshal.StructureToPtr(eachOption, current, false);
                 current = (IntPtr)((int)current + Marshal.SizeOf(eachOption));
@@ -80,7 +94,7 @@ namespace MyShadowsocks.Util.SystemProxy
             optionListStruct.pOptions = buffer;
             optionListStruct.Size = Marshal.SizeOf(optionListStruct);
             optionListStruct.Connection = string.IsNullOrEmpty(connName) ? IntPtr.Zero :
-                Marshal.StringToHGlobalAuto(connName);
+                Marshal.StringToHGlobalUni(connName); // TODO: not working if connName contains Chinese
             optionListStruct.OptionCount = optionList.Count;
             optionListStruct.OptionError = 0;
             int optionListSize = Marshal.SizeOf(optionListStruct);
@@ -96,17 +110,18 @@ namespace MyShadowsocks.Util.SystemProxy
             Marshal.FreeCoTaskMem(intptrStruct);
             if (!bReturn)
             {
+                
                 throw new Exception("InternetSetOption: " + Marshal.GetLastWin32Error());
             }
 
             bReturn = NativeMethods.InternetSetOption(
                 IntPtr.Zero,
-                INTERNET_OPTION.INTERNET_OPTION_PROXY_SETTING_CHANGED,
+                INTERNET_OPTION.INTERNET_OPTION_PROXY_SETTINGS_CHANGED,
                 IntPtr.Zero, 0);
             if (!bReturn)
             {
-                logger.Error("InternetSetOption: INTERNET_OPTION_PROXY_SETTINGS_CHANGED");
-                
+                throw new Exception("InternetSetOption: INTERNET_OPTION_PROXY_SETTINGS_CHANGED");
+
             }
             bReturn = NativeMethods.InternetSetOption(
                 IntPtr.Zero,
@@ -114,12 +129,12 @@ namespace MyShadowsocks.Util.SystemProxy
                 IntPtr.Zero, 0);
             if (!bReturn)
             {
-                logger.Error("InternetSetOption: INTERNET_OPTION_REFRESH");
+                throw new Exception("InternetSetOption: INTERNET_OPTION_REFRESH");
             }
 
         }
 
-        public static void SetIEProxy(bool enable, bool global, string proxyServer, string pacUrl)
+        private static void SetSystemProxy(bool enable, bool global, string proxyServer, string pacUrl)
         {
             string[] allConnections = null;
 
@@ -128,36 +143,66 @@ namespace MyShadowsocks.Util.SystemProxy
             if (ret == 2)
                 throw new Exception("Cannot get all connections");
             else if (ret == 1)
-            { 
-                // no entries, only set LAN
-                SetIEProxy(enable, global, proxyServer, pacUrl, null);
-            }else if (ret == 0)
             {
-                SetIEProxy(enable, global, proxyServer, pacUrl, null);
+                // no entries, only set LAN
+                SetSystemProxy(enable, global, proxyServer, pacUrl, null);
+            }
+            else if (ret == 0)
+            {
+                SetSystemProxy(enable, global, proxyServer, pacUrl, null);
                 foreach (string connName in allConnections)
                 {
-                    Console.WriteLine($"Connection name: {connName}");
-                    SetIEProxy(enable, global, proxyServer, pacUrl, connName);
+                    //Console.WriteLine($"Connection name: {connName}");
+                    SetSystemProxy(enable, global, proxyServer, pacUrl, connName);
                 }
             }
         }
 
-        public static void SetIEProxy(IEProxyOption option, string proxyServer, string pacUrl)
+        // connName = null for LAN
+        public static void SetSystemProxy(SystemProxyOption option, string proxyServer, string pacUrl, string connName)
         {
             switch (option)
             {
-                case IEProxyOption.Direct:
-                    SetIEProxy(false, false, null, null);
+                case SystemProxyOption.Proxy_None:
+                    SetSystemProxy(false, false, null, null, connName);
                     break;
-                case IEProxyOption.Proxy_Direct:
-                    SetIEProxy(true, true, proxyServer, null);
+                case SystemProxyOption.Proxy_Direct:
+                    SetSystemProxy(true, true, proxyServer, null, connName);
                     break;
-                case IEProxyOption.Proxy_PAC:
-                    SetIEProxy(true, false, null, pacUrl);
+                case SystemProxyOption.Proxy_PAC:
+                    SetSystemProxy(true, false, null, pacUrl, connName);
                     break;
                 default:
                     break;
             }
+        }
+
+
+        // set ie proxy to all connections
+        public static void SetSystemProxy(SystemProxyOption option, string proxyServer, string pacUrl)
+        {
+            string[] allConnections = null;
+
+
+            var ret = RemoteAccessService.GetAllConns(ref allConnections);
+            if (ret == 2)
+                throw new Exception("Cannot get all connections");
+            else if (ret == 1)
+            {
+                // no entries, only set LAN
+                SetSystemProxy(option, proxyServer, pacUrl, null);
+            }
+            else if (ret == 0)
+            {
+                SetSystemProxy(option, proxyServer, pacUrl, null);
+                foreach (string connName in allConnections)
+                {
+                    //Console.WriteLine($"Connection name: {connName}");
+                    SetSystemProxy(option, proxyServer, pacUrl, connName);
+                }
+            }
+
+
         }
 
     }

@@ -16,6 +16,7 @@ using MyShadowsocks.Util.ProcessManagement;
 using MyShadowsocks.Util;
 using MyShadowsocks.Model;
 using NLog;
+using Jun.Net;
 
 namespace MyShadowsocks.Controller
 {
@@ -23,12 +24,17 @@ namespace MyShadowsocks.Controller
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        private const string ExeFile = "ss_privoxy.exe";
+        private const string DllFile = "mgwz.dll";
+
+        private const int DefaultRunningPort = 8118;
+
         private static int Uid;
         private static string UniqueConfigFile;
         private static Job PrivoxyJob;
 
         private Process _process;
-        private int _runningPort;
+        
 
         static PrivoxyRunner()
         {
@@ -38,51 +44,71 @@ namespace MyShadowsocks.Controller
                 UniqueConfigFile = $"prioxy_{Uid}.conf";
                 PrivoxyJob = new Job();
 
-                FileManager.UncompressFile(Utils.GetTempPath("ss_privoxy.exe"), Resources.privoxy_exe);
-                FileManager.UncompressFile(Utils.GetTempPath("mgwz.dll"), Resources.mgwz_dll);
-            }catch(IOException ex)
+                FileManager.UncompressFile(Utils.GetTempPath(ExeFile), Resources.privoxy_exe);
+                FileManager.UncompressFile(Utils.GetTempPath(DllFile), Resources.mgwz_dll);
+            }catch(IOException)
             {
-                logger.Error(ex.Message);
+                //logger.Error(ex.Message);
             }
         }
 
 
-        public int RunningPort
-        {
-            get { return _runningPort; }
+       
+   
+        
+
+        public IPEndPoint BindEp { get; private set;}
+
+        public IPAddress BindIp => BindEp.Address;
+
+        public int BindPort => BindEp.Port;
+
+        public PrivoxyRunner() {
+            BindEp = new IPEndPoint(IPAddress.Loopback, DefaultRunningPort);
         }
 
-        public void Start(Configuration config)
-        {
-            Server server = config.GetCurrentServer();
-            if (_process == null)
-            {
+
+        public void Start(int socksPort) {
+            
+            if(_process != null) throw new Exception("Alreay started. Please stop it first.");
+
+            //if(_process == null) {
                 Process[] existingPrivoxy = Process.GetProcessesByName("ss_privoxy");
-                foreach(Process p in existingPrivoxy)
-                {
+                foreach(Process p in existingPrivoxy) {
                     KillProcess(p);
                 }
+
                 StringBuilder privoxyConfig = new StringBuilder(Resources.privoxy_conf);
-                _runningPort = this.GetFreePort();
-                privoxyConfig.Replace("__SOCKS_PORT__", config.LocalPort.ToString());
-                privoxyConfig.Replace("__PRIVOXY_BIND_PORT__", _runningPort.ToString());
-                privoxyConfig.Replace("__PRIVOXY_BIND_IP__", config.ShareOverLan ? "0.0.0.0" : "127.0.0.1");
-                FileManager.ByteArrayToFile(Utils.GetTempPath(UniqueConfigFile),
-                    Encoding.UTF8.GetBytes(privoxyConfig.ToString()));
+                int _runningPort = NetUtils.GetFreePortFrom(DefaultRunningPort);
+                BindEp.Port = _runningPort;
+
+                privoxyConfig.Replace("__SOCKS_PORT__", socksPort.ToString());
+                privoxyConfig.Replace("__PRIVOXY_BIND_PORT__", BindPort.ToString());
+                //privoxyConfig.Replace("__PRIVOXY_BIND_IP__", config.ShareOverLan ? "0.0.0.0" : "127.0.0.1");
+                privoxyConfig.Replace("__PRIVOXY_BIND_IP__",  BindIp.ToString());
+                File.WriteAllText(Utils.GetTempPath(UniqueConfigFile), privoxyConfig.ToString());
+                
 
                 _process = new Process();
-                _process.StartInfo.FileName = "ss_privoxy.exe";
+                _process.StartInfo.FileName = ExeFile;
                 _process.StartInfo.Arguments = UniqueConfigFile;
                 _process.StartInfo.WorkingDirectory = Utils.GetTempPath();
                 _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 _process.StartInfo.UseShellExecute = true;
                 _process.StartInfo.CreateNoWindow = true;
                 _process.Start();
-
+                
+                
                 PrivoxyJob.AddProcess(_process.Handle);
-            }
-            RefreshTrayArea();
+
+            logger.Info("Start Privoxy on " + BindEp);
+
+            //}
+            //RefreshTrayArea();
         }
+
+
+  
 
         public void Stop()
         {
@@ -90,8 +116,9 @@ namespace MyShadowsocks.Controller
             {
                 KillProcess(_process);
                 _process = null;
+                logger.Info("Stop Privoxy");
             }
-            RefreshTrayArea();
+            //RefreshTrayArea();
         }
 
         private static void KillProcess(Process p)
@@ -118,7 +145,7 @@ namespace MyShadowsocks.Controller
                 try
                 {
                     string path = process.MainModule.FileName;
-                    return Utils.GetTempPath("ss_privoxy.exe").Equals(path);
+                    return Utils.GetTempPath(ExeFile).Equals(path);
                 }catch(Exception ex)
                 {
                     logger.Error(ex.Message);
@@ -143,28 +170,7 @@ namespace MyShadowsocks.Controller
             
         }
 
-        private int GetFreePort()
-        {
-            int defaultPort = 8123;
-            try
-            {
-                IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
-                IPEndPoint[] tcpEndPoints = properties.GetActiveTcpListeners();
-                HashSet<int> usedPorts = new HashSet<int>();
-                foreach (var ep in tcpEndPoints) usedPorts.Add(ep.Port);
-                for(int port= defaultPort; port <= 65535; ++port)
-                {
-                    if (!usedPorts.Contains(port)) return port;
-                }
-                
-            }
-            catch(Exception ex)
-            {
-                logger.Error(ex.Message);
-                return defaultPort;
-            }
-            throw new Exception("No free port found.");
-        }
+
 
         
         [StructLayout(LayoutKind.Sequential)]

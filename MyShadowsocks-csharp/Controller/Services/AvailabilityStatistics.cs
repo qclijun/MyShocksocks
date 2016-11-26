@@ -218,7 +218,7 @@ namespace MyShadowsocks.Controller
 
             }
             logger.Debug(string.Format("Ping {0} {1} times, {2}% packages loss, min {3} ms, max {4} ms, avg {5} ms",
-                server.FriendlyName(), 100 - record.PackageLoss * 100, record.MinResponse, record.MaxResponse, record.AverageResponse));  
+                server.ToString(), 100 - record.PackageLoss * 100, record.MinResponse, record.MaxResponse, record.AverageResponse));  
            if(Interlocked.Decrement(ref state.counter) == 0)
             {
                 Save();
@@ -396,7 +396,7 @@ namespace MyShadowsocks.Controller
 
             public void Start(object userState)
             {
-                if (server.ServerName == "")
+                if (server.HostName == "")
                 {
                     FireCompleted(new Exception("Invalid Server"), userState);
                     return;
@@ -408,10 +408,10 @@ namespace MyShadowsocks.Controller
             {
                 try
                 {
-                    logger.Debug($"Ping {server.FriendlyName()}");
+                    logger.Debug($"Ping {server.ToString()}");
                     if (ip == null)
                     {
-                        ip = Dns.GetHostAddresses(server.ServerName)
+                        ip = Dns.GetHostAddresses(server.HostName)
                             .First(ip =>
                             ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork ||
                             ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6);
@@ -422,7 +422,7 @@ namespace MyShadowsocks.Controller
                     ping.SendAsync(ip, TimeoutMilliseconds, userState);
                 }catch(Exception e)
                 {
-                    logger.Error($"An Exception occured while evaluating {server.FriendlyName()}");
+                    logger.Error($"An Exception occured while evaluating {server.ToString()}");
                     logger.Error(e.Message);
                     FireCompleted(e, userState);
                 }
@@ -434,18 +434,18 @@ namespace MyShadowsocks.Controller
                 {
                     if (e.Reply.Status == IPStatus.Success)
                     {
-                        logger.Debug($"Ping {server.FriendlyName()} {e.Reply.RoundtripTime} ms");
+                        logger.Debug($"Ping {server.ToString()} {e.Reply.RoundtripTime} ms");
                         RoundtripTime.Add((int)e.Reply.RoundtripTime);
                     }
                     else
                     {
-                        logger.Debug($"Ping {server.FriendlyName()} timeout");
+                        logger.Debug($"Ping {server.ToString()} timeout");
                         RoundtripTime.Add(null);
                     }
                     TestNext(e.UserState);
                 }catch(Exception ex)
                 {
-                    logger.Error($"An exception occured while evaluating {server.FriendlyName()}");
+                    logger.Error($"An exception occured while evaluating {server.ToString()}");
                     logger.Error(ex.Message);
                     FireCompleted(ex, e.UserState);
                 }

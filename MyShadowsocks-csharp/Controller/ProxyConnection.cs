@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Junlee.Util.Sockets;
+using Jun.Net;
 using NLog;
 
 namespace MyShadowsocks.Controller {
@@ -17,8 +17,12 @@ namespace MyShadowsocks.Controller {
     public abstract class ProxyConnection : IDisposable {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        private static HashSet<ProxyConnection> _connections = new HashSet<ProxyConnection>();
 
-        public EventHandler CloseHandler;
+        public static int ConnectionCount => _connections.Count;
+
+        public EventHandler CloseHandler = (sender, e) => RemoveConnection((ProxyConnection)sender);
+
 
         public Socket ClientSocket { get; private set; }
 
@@ -26,12 +30,11 @@ namespace MyShadowsocks.Controller {
 
         public bool ConnectedToServer => ServerSocket != null && ServerSocket.Connected;
 
-
         public const int RecvSize = 8192;
 
         public const int BufferSize = RecvSize + 32;
-        
-        
+
+
 
         public byte[] ClientBuffer { get; } = new byte[BufferSize];
         public byte[] ServerBuffer { get; } = new byte[BufferSize];
@@ -51,7 +54,7 @@ namespace MyShadowsocks.Controller {
         private readonly TimeSpan _serverTimeout;
 
 
-        //private SpinLock _socketSyncLock = new SpinLock();
+        
 
 
         protected ProxyConnection(Socket clientSocket) {
@@ -65,25 +68,40 @@ namespace MyShadowsocks.Controller {
 
         #region IDisposable
 
-        //~Client() {
-        //    Dispose(false);
-        //}
+        ~ProxyConnection() {
+            Dispose(false);
+        }
 
         private int _disposed = 0;
 
         public virtual void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
             int oldValue = Interlocked.Exchange(ref _disposed, 1);
             if(oldValue == 1) return;
 
-            logger.Debug("Close Connection " + this);
-            try {
-                CloseHandler?.Invoke(this, null);
-            } catch { }
 
-            ClientSocket?.FullClose();
-            ServerSocket?.FullClose();
+            logger.Debug("Close Connection " + this);
+            if(disposing) {
+                //free managed resources
+                
+                try {
+                    ClientSocket?.FullClose();
+                    ServerSocket?.FullClose();
+
+                    CloseHandler?.Invoke(this, null);
+                } catch { }
+            }
+
+            // free unmanaged resources
+
 
         }
+
+
 
         public void Close() {
             Dispose();
@@ -109,22 +127,41 @@ namespace MyShadowsocks.Controller {
         }
 
         protected void OnException() {
-            Close();            
+            OnClosed();
+        }
+
+        protected static void AddConnection(ProxyConnection conn) {
+            if(conn == null) return;
+            lock (_connections) {
+                _connections.Add(conn);
+            }
+        }
+
+        protected static void RemoveConnection(ProxyConnection conn) {
+            lock (_connections) {
+                _connections.Remove(conn);
+            }
+        }
+
+        private void OnClosed() {
+            CloseHandler(this, null);
+            Close();           
         }
 
 
         public override string ToString() {
             try {
-                if(ServerSocket != null && ServerSocket.Connected) {
+                if(ConnectedToServer) {
                     return ClientSocket.RemoteEndPoint + " <----> "
                         + ServerSocket.RemoteEndPoint;
                 } else {
                     return "Connection from " + ClientSocket.RemoteEndPoint;
                 }
             } catch {
-                return "connection";
+                return "Connection";
             }
         }
+
 
         public abstract Task StartHandshake();
 
@@ -190,12 +227,12 @@ namespace MyShadowsocks.Controller {
         /// ClientSocket和ServerSocket都已经连接，开始传输数据
         /// 这个异步方法已经处理了全部的异常，不会有异常抛出
         /// </summary>
-        /// <returns></returns>
-        public async Task StartPipe() {
+        /// <returns>void</returns>
+        public async void StartPipe() {
             logger.Debug("StartPipe...");
             try {
                 await await Task.WhenAny(StartPipeC2S(), StartPipeS2C());
-            }catch(Exception ex) {
+            } catch(Exception ex) {
                 OnException(ex);
             }
         }
@@ -205,7 +242,7 @@ namespace MyShadowsocks.Controller {
     }
 
 
-   
+
 
 
 

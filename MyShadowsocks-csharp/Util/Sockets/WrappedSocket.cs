@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Jun.Net;
 
-namespace MyShadowsocks.Util.Sockets
-{
+namespace MyShadowsocks.Util.Sockets {
     class WrappedSocket:IDisposable
     {
         public EndPoint LocalEndPoint => _activeSocket?.LocalEndPoint;

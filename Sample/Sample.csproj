@@ -34,9 +34,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JunLibrary">
-      <HintPath>..\artifacts\bin\JunLibrary\Debug\dotnet\JunLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\MyShadowsocks-csharp\3rd\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -73,6 +70,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\JunLibrary\JunLibrary.csproj">
+      <Project>{21e082a1-116a-4d92-b515-1ef09d7cede6}</Project>
+      <Name>JunLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyShadowsocks-csharp\MyShadowsocks-csharp.csproj">
       <Project>{90d80416-0918-469f-8c6f-3ba9b1eb620d}</Project>
       <Name>MyShadowsocks-csharp</Name>

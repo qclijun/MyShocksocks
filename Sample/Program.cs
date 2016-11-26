@@ -1,29 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using System.Globalization;
 using System.Net.NetworkInformation;
 using System.Net;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-
-using System.Web.Script.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-using System.Security.Cryptography;
-using System.Runtime.InteropServices;
-
 using MyShadowsocks.Encryption;
-using System.Diagnostics;
-using MyShadowsocks.Controller;
 using System.Net.Sockets;
 using System.Threading;
-using Junlee.Util.Sockets;
+
+using Jun.Net;
 
 namespace Sample {
     enum ProxyType {
@@ -125,15 +114,12 @@ namespace Sample {
             //WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, "127.0.0.1:9090", "http://127.0.0.1:1081/pac?t=20161108152556298");
 
 
-            MainAsync().Wait();
+            //MainAsync().Wait();
 
 
 
-            string host = "A.ISS.TF";
-            int port = 1024;
-            string method = "aes-256-cfb";
-            string password = "31554049";
-
+            var type = Uri.CheckHostName("");
+            Console.WriteLine(type);
 
             
            

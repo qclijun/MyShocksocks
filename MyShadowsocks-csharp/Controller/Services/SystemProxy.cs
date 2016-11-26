@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using MyShadowsocks.Model;
-using Junlee.Util.SystemProxy;
+using Jun.Net.SystemProxy;
 
 namespace MyShadowsocks.Controller
 {

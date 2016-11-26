@@ -85,9 +85,6 @@
       <HintPath>..\packages\HtmlAgilityPack.1.4.9.5\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="JunLibrary">
-      <HintPath>..\artifacts\bin\JunLibrary\Debug\dotnet\JunLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>3rd\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -108,10 +105,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controller\AsyncClientManager.cs" />
     <Compile Include="Controller\DownloadServerInfo.cs" />
+    <Compile Include="Controller\ExceptionEventArgs.cs" />
     <Compile Include="Controller\IServerProvider.cs" />
-    <Compile Include="Controller\Manager.cs" />
+    <Compile Include="Controller\EncryptorPool.cs" />
+    <Compile Include="Controller\MyShadowsocksController.cs" />
     <Compile Include="Controller\ProxyConnection.cs" />
     <Compile Include="Controller\Core\AsyncUserToken.cs" />
     <Compile Include="Controller\Core\BufferManager.cs" />
@@ -158,19 +156,10 @@
     <Compile Include="Proxy\HttpProxy.cs" />
     <Compile Include="Proxy\IProxy.cs" />
     <Compile Include="StringEx.cs" />
-    <Compile Include="Util\Interops.cs" />
     <Compile Include="Util\ProcessManagement\Job.cs" />
     <Compile Include="Util\ProcessManagement\ThreadUtil.cs" />
     <Compile Include="Util\Sockets\FakeAsyncResult.cs" />
-    <Compile Include="Util\Sockets\SocketAsyncExt.cs" />
-    <Compile Include="Util\Sockets\SocketUtils.cs" />
     <Compile Include="Util\Sockets\WrappedSocket.cs" />
-    <Compile Include="Util\SystemProxy\INTERNET_OPTION.cs" />
-    <Compile Include="Util\SystemProxy\INTERNET_PER_CONN_OPTION.cs" />
-    <Compile Include="Util\SystemProxy\INTERNET_PER_CONN_OPTION_LIST.cs" />
-    <Compile Include="Util\SystemProxy\NativeMethods.cs" />
-    <Compile Include="Util\SystemProxy\RemoteAccessService.cs" />
-    <Compile Include="Util\SystemProxy\WinINet.cs" />
     <Compile Include="Util\Utils.cs" />
     <Compile Include="View\ConfigForm.cs">
       <SubType>Form</SubType>
@@ -228,6 +217,12 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JunLibrary\JunLibrary.csproj">
+      <Project>{21e082a1-116a-4d92-b515-1ef09d7cede6}</Project>
+      <Name>JunLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

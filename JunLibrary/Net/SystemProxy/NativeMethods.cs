@@ -20,8 +20,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-namespace Junlee.Util.SystemProxy
-{
+namespace Jun.Net.SystemProxy {
     static class NativeMethods
     {
         [DllImport("wininet.dll", CharSet = CharSet.Unicode, SetLastError = true)]

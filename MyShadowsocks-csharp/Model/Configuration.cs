@@ -20,6 +20,10 @@ namespace MyShadowsocks.Model {
             get; set;
         } = new List<Server>();
 
+        [JsonIgnore]
+        public bool ServerChanged { get; set; } = false;
+
+
         public string Strategy { get; set; } = "";
         public int Index { get; set; } = 0;
         public bool Global { get; set; } = false; //global or pac
@@ -41,6 +45,8 @@ namespace MyShadowsocks.Model {
         public const string CONFIG_FILE = "gui-config.json";
 
         public event EventHandler LocalPort_Changed;
+
+        
 
 
         //因为需要序列化，所以不能设置成private
@@ -87,24 +93,29 @@ namespace MyShadowsocks.Model {
             }
         }
 
-        public static void Save(Configuration config) {
-            if(config.Index >= config.ServerList.Count)
-                config.Index = config.ServerList.Count - 1;
-            if(config.Index < -1) config.Index = -1;
-            if(config.Index == -1 && config.Strategy == null)
-                config.Index = 0;
+  
+
+        public void SaveToFile() {
+            if(this.Index >= this.ServerList.Count)
+                this.Index = this.ServerList.Count - 1;
+            if(this.Index < -1) this.Index = -1;
+            if(this.Index == -1 && this.Strategy == null)
+                this.Index = 0;
 
             try {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Formatting = Formatting.Indented;
                 using(StreamWriter sw = new StreamWriter(File.Open(CONFIG_FILE, FileMode.Create)))
                 using(JsonWriter writer = new JsonTextWriter(sw)) {
-                    serializer.Serialize(writer, config);
+                    serializer.Serialize(writer, this);
                 }
             } catch(IOException e) {
                 logger.Error(e.Message);
+                throw;
             }
         }
+
+
 
         public void AddServer(Server s) {
             ServerList.Add(s);
@@ -114,7 +125,7 @@ namespace MyShadowsocks.Model {
         private static void CheckServer(Server server) {
             CheckPort(server.ServerPort);
             CheckPassword(server.Password);
-            CheckServer(server.ServerName);
+            CheckServer(server.HostName);
             CheckTimeout(server.Timeout, Server.MaxServerTimeoutSec);
         }
 

@@ -11,6 +11,7 @@ using MyShadowsocks.Controller;
 using MyShadowsocks.Properties;
 
 using NLog;
+using Jun.Util;
 
 namespace MyShadowsocks.Encryption {
     public static class MbedTLS {
@@ -31,7 +32,7 @@ namespace MyShadowsocks.Encryption {
                     dllPath, ex.Message);
                 throw;
             }
-            Util.Interops.LoadLibrary(dllPath);
+            Interops.LoadLibrary(dllPath);
         }
 
         public static byte[] MD5(byte[] input) {

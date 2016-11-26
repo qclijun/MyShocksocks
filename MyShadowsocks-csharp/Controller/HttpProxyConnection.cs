@@ -6,9 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-
-using Junlee.Util.Sockets;
-
+using Jun.Net;
 
 namespace MyShadowsocks.Controller {
     public sealed class HttpProxyConnection : ProxyConnection {
@@ -28,7 +26,7 @@ namespace MyShadowsocks.Controller {
             try {
                 byte[] requestBytes = await ReadFirstRequest();
                 await ProcessRequest(requestBytes, 0, requestBytes.Length);
-                await StartPipe();
+                StartPipe();
             } catch {
                 OnException();
             }

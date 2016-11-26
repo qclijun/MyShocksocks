@@ -4,13 +4,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyShadowsocks-csharp", "MyShadowsocks-csharp\MyShadowsocks-csharp.csproj", "{90D80416-0918-469F-8C6F-3BA9B1EB620D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CEEBD890-FCD8-4471-B781-BF850D072246} = {CEEBD890-FCD8-4471-B781-BF850D072246}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "JunLibrary", "JunLibrary\JunLibrary.xproj", "{CEEBD890-FCD8-4471-B781-BF850D072246}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{96E7D948-9384-465C-8ECB-6E08A5E41D31}"
 	ProjectSection(SolutionItems) = preProject
@@ -18,6 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{E5664003-6E93-45EA-A1FA-866B0C4B9835}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyShadowsocks-UI", "MyShadowsocks-UI\MyShadowsocks-UI.csproj", "{1FE832A0-07FD-4600-AF0C-1BA94D287C6A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{90D80416-0918-469F-8C6F-3BA9B1EB620D} = {90D80416-0918-469F-8C6F-3BA9B1EB620D}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JunLibrary", "JunLibrary\JunLibrary.csproj", "{21E082A1-116A-4D92-B515-1EF09D7CEDE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +35,18 @@ Global
 		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F9DCC05-BA23-4F24-AFD7-02DB7059702A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CEEBD890-FCD8-4471-B781-BF850D072246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CEEBD890-FCD8-4471-B781-BF850D072246}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CEEBD890-FCD8-4471-B781-BF850D072246}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CEEBD890-FCD8-4471-B781-BF850D072246}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E5664003-6E93-45EA-A1FA-866B0C4B9835}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E5664003-6E93-45EA-A1FA-866B0C4B9835}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5664003-6E93-45EA-A1FA-866B0C4B9835}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5664003-6E93-45EA-A1FA-866B0C4B9835}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FE832A0-07FD-4600-AF0C-1BA94D287C6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FE832A0-07FD-4600-AF0C-1BA94D287C6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FE832A0-07FD-4600-AF0C-1BA94D287C6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FE832A0-07FD-4600-AF0C-1BA94D287C6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21E082A1-116A-4D92-B515-1EF09D7CEDE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21E082A1-116A-4D92-B515-1EF09D7CEDE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21E082A1-116A-4D92-B515-1EF09D7CEDE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21E082A1-116A-4D92-B515-1EF09D7CEDE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

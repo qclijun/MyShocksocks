@@ -5,7 +5,6 @@ C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShado
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\NLog.dll
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\JunLibrary.pdb
-C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\JunLibrary.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\NLog.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.Properties.Resources.resources

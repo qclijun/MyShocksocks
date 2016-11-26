@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Junlee.Util.Sockets;
-using MyShadowsocks.Controller.Core;
+using Jun;
+using Jun.Net;
 using NLog;
 
 namespace MyShadowsocks.Controller {
@@ -18,6 +11,7 @@ namespace MyShadowsocks.Controller {
 
     public class ProxyListener {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
 
         public IPEndPoint ListenEp { get; private set; }
 
@@ -39,19 +33,27 @@ namespace MyShadowsocks.Controller {
 
         public ProxyListener(int port) : this(IPAddress.Any, port) { }
 
-        public ProxyListener() { }
+        public ProxyListener():this(0) {
+            
+        }
 
         public async Task StartListen(int port) {
-            Stop();
-            ListenEp = new IPEndPoint(IPAddress.Any, port);
+            if(_listenSocket != null)
+                throw new Exception("Already started. Please stop it first.");
+
+            if(NetUtils.IsPortInUse(port)) throw new SocketException((int)SocketError.AddressAlreadyInUse);
+
+            ListenEp.Port = port;
 
             try {
                 _listenSocket = new Socket(ListenEp.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _listenSocket.Bind(ListenEp);
                 _listenSocket.Listen(100);
                 logger.Info("Start Proxy On  " + ListenEp);
-            }catch(SocketException ex) {
-                logger.Error("Listen failed. " + ex.Message);
+            } catch(SocketException ex) {
+                logger.Error("Listen failed. " + ex.SocketErrorCode);
+                Stop();
+                throw;
             }
 
             try {
@@ -60,55 +62,51 @@ namespace MyShadowsocks.Controller {
                         await _listenSocket.AcceptTaskAsync().ConfigureAwait(false);
                     ProxyConnection newConn = new SocksProxyConnection(requestSocket);
 
+                    //StartHandshake处理了所有的异常，不会有异常抛出。
+                    //所以无限循环只能在AcceptTaskAsync失败（如Stop())时结束
                     await newConn.StartHandshake();
                 }
-            }catch(ObjectDisposedException) {
+            } catch(ObjectDisposedException) {
                 //// Stop() cause this exception, and this task finished.
-            }catch(Exception ex) {
-                logger.Error("Accept failed." + ex.Message);
+                //ignore 
+            } catch(SocketException ex) {
+
+                logger.Error("Accept failed. " + ex.SocketErrorCode);
+                Stop();
+                throw;
+            } catch(Exception ex) {
+                logger.Error("Accept failed." + ex.TypeAndMessage());
+                Stop();
+                throw;
             }
 
         }
 
-       
-
         public void Stop() {
             if(_listenSocket != null) {
                 logger.Info("Stop listening on " + ListenEp);
-                _listenSocket.Close();               
-            }           
+                _listenSocket.Close();
+                _listenSocket = null;
+            }
         }
 
-        
 
-        //private void RemoveConnection(ProxyConnection conn) {
-        //    if(!conn.ConnectedToServer) return;
-        //    lock (_connections) {
-        //        _connections.Remove(conn);
-        //    }
+        //private bool _disposed = false;
+        //public void Dispose() {
+        //    if(_disposed) return;
+        //    _disposed = true;
+
+        //    _listenSocket?.Close();
+        //    _listenSocket = null;            
+
         //}
-
-        //private void AddConnection(ProxyConnection conn) {
-        //    lock (_connections) {
-        //        _connections.Add(conn);
-        //    }
-        //}
-
-        private bool _disposed = false;
-        public void Dispose() {
-            if(_disposed) return;
-            _disposed = true;
-
-            _listenSocket?.Close();
-            _listenSocket = null;            
-            
-        }
 
         public void Close() {
-            Dispose();
+            Stop();
+
         }
 
-     
+
 
     }
 }
