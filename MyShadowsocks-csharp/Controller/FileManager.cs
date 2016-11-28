@@ -28,14 +28,7 @@ namespace MyShadowsocks.Controller {
             }
         }
 
-        public static string ReadZipFile(byte[] content) {
 
-            using(var input = new System.IO.Compression.GZipStream(new MemoryStream(content),
-                System.IO.Compression.CompressionMode.Decompress, false))
-            using(StreamReader r = new StreamReader(input)) {
-                return r.ReadToEnd();
-            }
-        }
 
     }
 }

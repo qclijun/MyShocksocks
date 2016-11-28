@@ -46,17 +46,7 @@ namespace MyShadowsocks.Util {
             return Path.Combine(GetTempPath(), filename);
         }
 
-        public static string UnGzip(byte[] buf) {
-            using(MemoryStream sb = new MemoryStream())
-            using(var input = new System.IO.Compression.GZipStream(
-                new MemoryStream(buf),
-                System.IO.Compression.CompressionMode.Decompress,
-                    false)) {
-                input.CopyTo(sb);
-                return System.Text.Encoding.UTF8.GetString(sb.ToArray());
-            }
-
-        }
+ 
 
 
         public static void ReleaseMemory(bool removePages) {

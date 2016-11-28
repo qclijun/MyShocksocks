@@ -15,7 +15,7 @@ using MyShadowsocks.Util;
 using NLog;
 
 namespace MyShadowsocks.Controller {
-    public class PACServer2 : Service {
+    public class PACServer2  {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
         public const string PAC_FILE = "pac.txt";
@@ -46,7 +46,7 @@ namespace MyShadowsocks.Controller {
 
 
 
-        public override bool Handle(byte[] firstPacket, int length, Socket socket, object state) {
+        public  bool Handle(byte[] firstPacket, int length, Socket socket, object state) {
             if(socket.ProtocolType != ProtocolType.Tcp) return false;
             try {
                 string request = Encoding.UTF8.GetString(firstPacket, 0, length);

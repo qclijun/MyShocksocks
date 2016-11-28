@@ -11,14 +11,7 @@ namespace MyShadowsocks
         #region  basic string methods;
  
 
-        public static bool IsWhiteSpace(this string value)
-        {
-            foreach(var c in value)
-            {
-                if (!char.IsWhiteSpace(c)) return false;
-            }
-            return true;
-        }
+
             
 
         #endregion

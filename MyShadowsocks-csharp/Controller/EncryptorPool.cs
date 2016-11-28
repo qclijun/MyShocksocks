@@ -10,7 +10,7 @@ using MyShadowsocks.Model;
 
 
 namespace MyShadowsocks.Controller {
-    public sealed class EncryptorPool : IDisposable {
+    sealed class EncryptorPool : IDisposable {
         
 
         private ConcurrentBag<MbedEncryptor> encryptorPool;
@@ -24,7 +24,7 @@ namespace MyShadowsocks.Controller {
             decryptorPool = new ConcurrentBag<MbedEncryptor>();
         }
 
-        public MbedEncryptor GetEncryptor(Server s) {
+        internal MbedEncryptor GetEncryptor(Server s) {
             MbedEncryptor encryptor;
             if(!encryptorPool.TryTake(out encryptor)) {
                 //Not  found
@@ -39,7 +39,7 @@ namespace MyShadowsocks.Controller {
             return encryptor;
         }
 
-        public MbedEncryptor GetDecryptor(Server s) {
+        internal MbedEncryptor GetDecryptor(Server s) {
             MbedEncryptor decryptor;
             if(!decryptorPool.TryTake(out decryptor)) {
                 //Not  found
@@ -54,7 +54,7 @@ namespace MyShadowsocks.Controller {
             return decryptor;
         }
 
-        public void FreeEncryptor(MbedEncryptor e) {
+         internal void FreeEncryptor(MbedEncryptor e) {
             if(e != null) {
                 if(e.IsCipher) encryptorPool.Add(e);
                 else decryptorPool.Add(e);

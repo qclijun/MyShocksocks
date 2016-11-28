@@ -8,7 +8,6 @@ C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShado
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\bin\Debug\NLog.xml
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.Properties.Resources.resources
-C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.View.ConfigForm.resources
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks-csharp.csproj.GenerateResource.Cache
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.exe
 C:\Users\Jun\Documents\Visual Studio 2015\Projects\MyShadowsocks-windows\MyShadowsocks-csharp\obj\Debug\MyShadowsocks.pdb

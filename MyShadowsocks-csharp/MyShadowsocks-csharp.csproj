@@ -88,8 +88,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>3rd\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\..\NLog.4.3.11\lib\net45\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLog.4.3.11\lib\net45\NLog.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -106,43 +107,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\DownloadServerInfo.cs" />
-    <Compile Include="Controller\ExceptionEventArgs.cs" />
-    <Compile Include="Controller\IServerProvider.cs" />
+    <Compile Include="Controller\PACFileUpdater.cs" />
+    <Compile Include="Controller\Strategy\IServerSelector.cs" />
     <Compile Include="Controller\EncryptorPool.cs" />
     <Compile Include="Controller\MyShadowsocksController.cs" />
     <Compile Include="Controller\ProxyConnection.cs" />
-    <Compile Include="Controller\Core\AsyncUserToken.cs" />
-    <Compile Include="Controller\Core\BufferManager.cs" />
     <Compile Include="Controller\HttpProxyConnection.cs" />
     <Compile Include="Controller\HttpRequestParser.cs" />
     <Compile Include="Controller\ProxyListener.cs" />
-    <Compile Include="Controller\Services\GfwUpdater.cs" />
-    <Compile Include="Controller\Services\AvailabilityStatistics.cs" />
     <Compile Include="Controller\FileManager.cs" />
-    <Compile Include="Controller\Services\GFWListUpdater.cs" />
     <Compile Include="Controller\I18N.cs" />
-    <Compile Include="Controller\Services\PACServer2.cs" />
-    <Compile Include="Controller\Services\PrivoxyRunner.cs" />
-    <Compile Include="Controller\Services\PACServer.cs" />
-    <Compile Include="Controller\Services\Service.cs" />
-    <Compile Include="Controller\Services\Listener.cs" />
-    <Compile Include="Controller\Services\TCPRelay.cs" />
-    <Compile Include="Controller\ShadowsocksController.cs" />
-    <Compile Include="Controller\SimpleServerProvider.cs" />
+    <Compile Include="Controller\PrivoxyRunner.cs" />
+    <Compile Include="Controller\Strategy\ServerSelector.cs" />
     <Compile Include="Controller\SocksProxyConnection.cs" />
-    <Compile Include="Controller\Strategy\BalancingStrategy.cs" />
-    <Compile Include="Controller\Strategy\HighAvailabilityStrategy.cs" />
-    <Compile Include="Controller\Strategy\IStrategy.cs" />
-    <Compile Include="Controller\Strategy\StatisticsStrategy.cs" />
-    <Compile Include="Controller\Strategy\StrategyManager.cs" />
-    <Compile Include="Controller\Services\SystemProxy.cs" />
+    <Compile Include="Controller\Strategy\ServerSelectorManager.cs" />
+    <Compile Include="Encryption\EncryptorException.cs" />
     <Compile Include="Encryption\EncryptorInfo.cs" />
-    <Compile Include="Encryption\EncryptorBase.cs" />
-    <Compile Include="Encryption\IEncryptor.cs" />
     <Compile Include="Encryption\MbedTLS.cs" />
     <Compile Include="Encryption\MbedEncryptor.cs" />
-    <Compile Include="Encryption\MbedTLSEncrytor.cs" />
-    <Compile Include="Encryption\SymmEncryptor.cs" />
     <Compile Include="Model\Configuration.cs" />
     <Compile Include="Model\HotkeyConfig.cs" />
     <Compile Include="Model\LogViewerConfig.cs" />
@@ -161,12 +143,6 @@
     <Compile Include="Util\Sockets\FakeAsyncResult.cs" />
     <Compile Include="Util\Sockets\WrappedSocket.cs" />
     <Compile Include="Util\Utils.cs" />
-    <Compile Include="View\ConfigForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="View\ConfigForm.Designer.cs">
-      <DependentUpon>ConfigForm.cs</DependentUpon>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -177,9 +153,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="View\ConfigForm.resx">
-      <DependentUpon>ConfigForm.cs</DependentUpon>
-    </EmbeddedResource>
     <None Include="Data\abp.js.gz" />
     <None Include="Data\libsscrypto.dll.gz" />
     <None Include="Data\mgwz.dll.gz" />
@@ -214,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="3rd\" />
+    <Folder Include="View\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

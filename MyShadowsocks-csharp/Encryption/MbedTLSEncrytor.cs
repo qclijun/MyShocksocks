@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MyShadowsocks.Encryption {
-    public class MbedTLSEncrytor : IDisposable {
+    class MbedTLSEncrytor : IDisposable {
 
         private IntPtr _encryptCtx = IntPtr.Zero;
         private IntPtr _decryptCtx = IntPtr.Zero;
@@ -62,9 +62,7 @@ namespace MyShadowsocks.Encryption {
             { "rc4-md5", new IVEncryptorInfo("ARC4-128", 16, 16, EncryptorType.RC4) }
         };
 
-        public static IEnumerable<string> SupportedMethods() {
-            return _ciphers.Keys;
-        }
+        internal static IEnumerable<string> SupportedMethods => _ciphers.Keys;
 
 
         public void SetKey(string password) {

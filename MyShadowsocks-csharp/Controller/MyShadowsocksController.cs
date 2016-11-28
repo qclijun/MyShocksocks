@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Jun.Net.SystemProxy;
-
+using MyShadowsocks.Controller.Strategy;
+using MyShadowsocks.Encryption;
 using MyShadowsocks.Model;
 using MyShadowsocks.Properties;
 using NLog;
@@ -21,32 +23,31 @@ namespace MyShadowsocks.Controller {
         public static List<Server> ServerList => _config.ServerList;
 
 
-        //当_updateTimer更新Servers完成后引发该事件
-        public static event EventHandler Timer_ServersUpdated;
 
+
+        //ServersChanged有可能是由Timer引起的，也有可能时由UI引起的
+        public static event EventHandler ServersChanged;
+
+        private static Timer _updateTimer;
 
         private PrivoxyRunner _privoxyRunner;
         private ProxyListener _listener;
-        private Timer _updateTimer;
+
+        private PACFileUpdater _pacFileUpdater;
+
 
         public bool IsRunning { get; private set; }
 
-
-
-        public static void LoadConfiguration() {
-            _config = Configuration.Load();
-            //UpdateServerList();
-        }
-
-        private async void UpdateServerList() {
+        private static async void UpdateServerList() {
             try {
                 bool needUpdate = await DownloadServerInfo.UpdateServerList(Config.ServerList);
-                
+
                 if(needUpdate) {
                     //Config.ServerChanged = true;
                     //Config.SaveToFile();
 
-                    Timer_ServersUpdated?.Invoke(this, null);
+                    //ServersChanged?.Invoke(typeof(Timer), null);
+                    RaiseServersChangedEvent(typeof(Timer));
                     logger.Info("Update servers: Success.");
                 } else {
                     logger.Info("Update servers: No need.");
@@ -56,8 +57,17 @@ namespace MyShadowsocks.Controller {
             }
         }
 
+        public static void RaiseServersChangedEvent(object sender) {
+            ServersChanged?.Invoke(sender, null);
+        }
+
+
         static MyShadowsocksController() {
-            LoadConfiguration();
+            _config = Configuration.Load();
+            UpdateServerList();
+            TimeSpan ts = TimeSpan.FromHours(1);
+            //TimeSpan ts = TimeSpan.FromSeconds(10);
+            _updateTimer = new Timer(obj => UpdateServerList(), null, ts, ts);
         }
 
 
@@ -65,23 +75,22 @@ namespace MyShadowsocks.Controller {
         public MyShadowsocksController() {
             _privoxyRunner = new PrivoxyRunner();
             _listener = new ProxyListener();
-            //TimeSpan ts = TimeSpan.FromHours(1);
-            TimeSpan ts = TimeSpan.FromSeconds(10);
-            _updateTimer = new Timer(obj => UpdateServerList(), null, ts, ts);
+            _pacFileUpdater = new PACFileUpdater();
+            _pacFileUpdater.PACFileChanged += PacFileUpdater_PACFileChanged;
             IsRunning = false;
         }
+
+
 
         public void Stop() {
             if(!IsRunning) return;
             IsRunning = false;
+            
             _listener?.Stop();
             _privoxyRunner?.Stop();
 
             WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_None, null, null);
         }
-
-
- 
 
 
         public async Task Start() {
@@ -90,13 +99,9 @@ namespace MyShadowsocks.Controller {
             Task t = _listener.StartListen(Config.LocalPort);//t开始运行
             _privoxyRunner.Start(Config.LocalPort);
             IsRunning = true;
+            
 
-
-
-            //设置系统代理
-            GeneratePacFile(PacFileName);
-            WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, null, GetPacAddress());
-
+            SetMode(Config.Global);
 
             //t一直在运行，await t之后的代码只能在异常时运行
             //_listener出现异常（如端口被占用） 由谁来处理？？？需不需要用try-catch包含await t??， controller处理不了，还是交给UI
@@ -108,32 +113,57 @@ namespace MyShadowsocks.Controller {
             await Start();
         }
 
+        private const string PacFileName = PACFileUpdater.PAC_FILE;
 
-        private const string PacFileName = "pac.txt";
+        private string tempPacFilePath = "";
 
-        private string GetPacAddress() {
-            var path = Path.GetFullPath(PacFileName);
-            return "file:///" + path;
+        private string GetTempPacFile() {
+            if(tempPacFilePath == "") NewTempPacFile();
+            return "file:///" + tempPacFilePath;
         }
+
+        private void NewTempPacFile() {
+            string pac;
+            if(!File.Exists(PacFileName)) {
+                pac = Jun.Utils.UnZipText(Resources.proxy_pac_txt);
+                File.WriteAllText(PacFileName, pac);
+            } else {
+                using(StreamReader r = new StreamReader(File.Open(PacFileName,FileMode.Open,FileAccess.Read,
+                    FileShare.ReadWrite))) {
+                    pac = r.ReadToEnd();
+                }
+            }
+            tempPacFilePath = Path.GetTempFileName();
+            File.WriteAllText(tempPacFilePath, pac.Replace("__PROXY__", GetProxyString()));
+
+        }
+
+
+
 
         private string GetProxyString() {
             return "Proxy " + _privoxyRunner.BindEp.ToString() + ";";
         }
 
-        private void GeneratePacFile(string filename) {
-            using(var zipInput = new System.IO.Compression.GZipStream(new MemoryStream(Resources.proxy_pac_txt),
-                System.IO.Compression.CompressionMode.Decompress))
-            using(var r = new StreamReader(zipInput))
-            using(var w = new StreamWriter(File.Create(filename))) {
-                string line;
-                while((line = r.ReadLine()) != null) {
-                    //if(line.IndexOf("__PROXY__", StringComparison.Ordinal) != -1) {
-                    line = line.Replace("__PROXY__", GetProxyString());
-                    w.WriteLine(line);
-                    //}
-                }
+
+
+
+        public void SetMode(bool globalMode) {
+            Contract.Requires<Exception>(IsRunning);
+
+            Config.Global = globalMode;
+
+            if(globalMode) {
+                logger.Info("Proxy Mode: Global");
+                WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_Direct, _privoxyRunner.BindEp.ToString(), null);
+            } else {
+                //pacMode
+                logger.Info("Proxy Mode: PAC");
+                //设置系统代理
+                WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, null, GetTempPacFile());
             }
         }
+
 
 
 
@@ -145,13 +175,32 @@ namespace MyShadowsocks.Controller {
             await _listener.StartListen(_config.LocalPort);
         }
 
-        public void OnServerChanged() {
 
 
-            //do nothing
-            //当服务器信息改变后，只影响以后新建立的连接，已经建立的连接连不上了就会自动关闭
-            //_listener和_privoxyRunner继续运行
+        public static void SetStrategy(string newStrategy) {
+           
+            logger.Info("Change strategy to: " + newStrategy);
+
+            Config.Strategy = newStrategy;
+            SocksProxyConnection.SetStrategy(newStrategy);
+            
         }
+
+
+
+        private void PacFileUpdater_PACFileChanged(object sender, FileSystemEventArgs e) {
+            if(Config.Global) return;
+
+            logger.Info("PAC File Changed.");
+            NewTempPacFile();
+            WinINet.SetSystemProxy(WinINet.SystemProxyOption.Proxy_PAC, null, GetTempPacFile());
+        }
+
+
+        public static IEnumerable<string> SupportedServerSelectors => ServerSelectorManager.SupportedServerSelectors;
+
+        public static IEnumerable<string> SuppportedEncryptMethods => MbedEncryptor.SupportedMethods;
+
 
     }
 }

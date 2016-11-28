@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MyShadowsocks.Encryption {
-    public class MbedEncryptor : IDisposable {
+    class MbedEncryptor : IDisposable {
 
         private IntPtr _ctx = IntPtr.Zero;
 
@@ -75,6 +75,9 @@ namespace MyShadowsocks.Encryption {
             { "camellia-256-cfb", new IVEncryptorInfo("CAMELLIA-256-CFB128", 32, 16, EncryptorType.Camellia) },
             { "rc4-md5", new IVEncryptorInfo("ARC4-128", 16, 16, EncryptorType.RC4) }
         };
+
+        public static IEnumerable<string> SupportedMethods => _ciphers.Keys;
+
         #endregion
 
         private void Rc4Md5_UpdateKey() {

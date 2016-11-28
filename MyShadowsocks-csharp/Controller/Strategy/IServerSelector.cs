@@ -6,12 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using MyShadowsocks.Model;
 
-namespace MyShadowsocks.Controller {
-    interface IServerProvider {        
+namespace MyShadowsocks.Controller.Strategy {
+    interface IServerSelector {        
         
         int GetAServerIndex();
 
         void SetFailure(int index);
 
+        string Name { get; }
     }
 }

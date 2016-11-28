@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Jun.Net;
 
 namespace MyShadowsocks.Controller {
-    public sealed class HttpProxyConnection : ProxyConnection {
+    sealed class HttpProxyConnection : ProxyConnection {
         
 
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

@@ -5,14 +5,15 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Jun;
 using Jun.Net;
+using MyShadowsocks.Controller.Strategy;
 using MyShadowsocks.Model;
 using MyShadowsocks.Util;
 using NLog;
 
 namespace MyShadowsocks.Controller {
-    public class SocksProxyConnection : ProxyConnection {
+    sealed class SocksProxyConnection : ProxyConnection {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        private static IServerProvider Sp = new FailureRankServerProvider();
+        private static IServerSelector Sp = null;
         private static EncryptorPool Pool = new EncryptorPool();
 
         private Server _currentServer;
@@ -20,6 +21,17 @@ namespace MyShadowsocks.Controller {
         private byte[] ClientCipherBuffer = new byte[BufferSize]; //用于保存加密和解密的结果
         private byte[] ServerCipherBuffer = new byte[BufferSize];
 
+
+        static SocksProxyConnection() {
+            SetStrategy(MyShadowsocksController.Config.Strategy);
+        }
+
+        internal static void SetStrategy(string name) {
+            Sp = ServerSelectorManager.GetSelector(name);
+            if(Sp is FixedServerSelector) {
+                (Sp as FixedServerSelector).SetIndex(MyShadowsocksController.Config.Index);
+            }
+        }
 
 
         public SocksProxyConnection(Socket requestSocket) : base(requestSocket) {
@@ -61,7 +73,7 @@ namespace MyShadowsocks.Controller {
                 logger.Debug("receive {0} bytes from {1}", bytesRead, ClientSocket.RemoteEndPoint);
                 logger.Debug("first package: " + Jun.Utils.DumpByteArray(ClientBuffer, 0, bytesRead));
 
-                
+
                 await Task.WhenAll(dispatch, StartConnect()).ContinueWith((ans) => {
                     StartPipe();
                 }, TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -120,18 +132,24 @@ namespace MyShadowsocks.Controller {
                 if(conn == await Task.WhenAny(conn, Task.Delay(TimeSpan.FromSeconds(timeout)))) {
 
                     await conn;
-                    logger.Info("Socket connected to ss serer: " + this);
+                    AddConnection(this);
+                    logger.Info("New connection  {0}, Current connection count: {1}", this, ConnectionCount);
 
 
                 } else {
-                    logger.Info("failed to connect ss server "+ s.ToString() + ": time out");
+                    logger.Info("failed to connect ss server " + s.ToString() + ": time out");
                     Sp.SetFailure(index);
                     OnException();
                 }
 
+            } catch(SocketException ex) {
+                Sp.SetFailure(index);
+
+                OnException($"Failed to connect  ss server {s.ToString()}. SocketException: {ex.SocketErrorCode}");
             } catch(Exception ex) {
                 Sp.SetFailure(index);
-                OnException($"failed to connect  ss server {s.ToString()}. {ex.TypeAndMessage()}");
+
+                OnException($"Failed to connect  ss server {s.ToString()}. {ex.TypeAndMessage()}");
             }
         }
 
@@ -143,7 +161,7 @@ namespace MyShadowsocks.Controller {
         #region StartPipe        
 
         //使用ServerBuffer和ServerCipherBuffer
-        
+
         protected override async Task StartPipeS2C() {
             //decryptor变成局部变量，而不需要成为类的字段，当异步任务结束时（连接中断或出现异常时）释放decryptor
             //另一个选择是成为类的字段，调用Close()的时候释放
@@ -164,14 +182,14 @@ namespace MyShadowsocks.Controller {
                         Close();
                         break;
                     }
-                    
-                        if(firstTime) {
-                            decryptor.DecryptFirstPackage(ServerBuffer, bytes, ServerCipherBuffer, out bytesToSend);
-                            firstTime = false;
-                        } else {
-                            decryptor.Decrypt(ServerBuffer, bytes, ServerCipherBuffer, out bytesToSend);
-                        }
-                    
+
+                    if(firstTime) {
+                        decryptor.DecryptFirstPackage(ServerBuffer, bytes, ServerCipherBuffer, out bytesToSend);
+                        firstTime = false;
+                    } else {
+                        decryptor.Decrypt(ServerBuffer, bytes, ServerCipherBuffer, out bytesToSend);
+                    }
+
 
                     bytes = await ClientSocket.SendTaskAsync(ServerCipherBuffer, 0, bytesToSend, SocketFlags.None);
                     logger.Debug("Send: {0} bytes to Client: {1}", bytes, this.ToString());
@@ -192,7 +210,7 @@ namespace MyShadowsocks.Controller {
         }
 
         //使用ClientBuffer和ClientCipherBuffer
-        
+
         protected override async Task StartPipeC2S() {
             var encryptor = Pool.GetEncryptor(_currentServer);
             bool firstTime = true;

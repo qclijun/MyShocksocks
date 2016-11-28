@@ -1,18 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MyShadowsocks.Model;
 
-namespace MyShadowsocks.Controller {
-    class SimpleServerProvider : IServerProvider {
-        
-       
+namespace MyShadowsocks.Controller.Strategy {
+    class FixedServerSelector : IServerSelector {
+        private int _index;
+
+        public string Name {
+            get {
+                if(CultureInfo.CurrentCulture.Name.StartsWith("zh"))
+                    return "固定策略";
+                else return "Fixed";
+            }
+        }
+
+        public FixedServerSelector(int index = 0) {
+            _index = index;
+        }
+
+        public void SetIndex(int index) {
+            _index = index;
+        }
+
 
         public int GetAServerIndex() {
-            return 0;
+            return _index;
         }
 
         public void SetFailure(int index) {
@@ -20,7 +37,7 @@ namespace MyShadowsocks.Controller {
         }
     }
 
-    class RandomServerProvider : IServerProvider {
+    class RandomServerSelector : IServerSelector {
         private Random rand = new Random();
 
         public int GetAServerIndex() {
@@ -30,17 +47,25 @@ namespace MyShadowsocks.Controller {
         public void SetFailure(int index) {
             //do nothing
         }
+
+        public string Name {
+            get {
+                if(CultureInfo.CurrentCulture.Name.StartsWith("zh"))
+                    return "随机策略";
+                else return "Random";
+            }
+        }
     }
 
-    class FailureRankServerProvider : IServerProvider {
-        
+    class FailureRankServerSelector : IServerSelector {
+
         int[] _failureCount;
         private int _bestServerIndex;
 
-        public FailureRankServerProvider() {            
+        public FailureRankServerSelector() {
             _failureCount = new int[MyShadowsocksController.ServerList.Count];
             _bestServerIndex = 0;
-            MyShadowsocksController.Timer_ServersUpdated += (sender, e) => Reset();
+            MyShadowsocksController.ServersChanged += (sender, e) => Reset();
         }
 
         private void Reset() {
@@ -48,13 +73,9 @@ namespace MyShadowsocks.Controller {
             _bestServerIndex = 0;
         }
 
-        public Server GetAServer() {
-            
-            return MyShadowsocksController.ServerList[_bestServerIndex];
-        }
+
 
         public int GetAServerIndex() {
-            
             return _bestServerIndex;
         }
 
@@ -76,6 +97,18 @@ namespace MyShadowsocks.Controller {
             //写_bestServerIndex需锁定
             Interlocked.Exchange(ref _bestServerIndex, minIndex);
         }
+
+        public string Name {
+            get {
+                if(CultureInfo.CurrentCulture.Name.StartsWith("zh"))
+                    return "失连评级策略";
+                else return "FailureRank";
+            }
+        }
+
+
     }
+
+
 
 }

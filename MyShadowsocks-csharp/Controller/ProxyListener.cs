@@ -9,7 +9,7 @@ using NLog;
 namespace MyShadowsocks.Controller {
 
 
-    public class ProxyListener {
+    class ProxyListener {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
 

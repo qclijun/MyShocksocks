@@ -16,21 +16,21 @@ namespace Jun.Net {
             //    if(ep.Port == port) return true;
             //}
             //return false;
-           
-            return tcpEndPoints.Any(ep => ep.Port == port);            
+
+            return tcpEndPoints.Any(ep => ep.Port == port);
         }
 
-        private const int MaxPort = 65535;
+
 
         public static int GetFreePortFrom(int beginPort) {
             int defaultPort = beginPort;
 
             IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
             IPEndPoint[] tcpEndPoints = properties.GetActiveTcpListeners();
-            for(int port = beginPort;port <= MaxPort;++port) {
+            for(int port = beginPort;port <= IPEndPoint.MaxPort;++port) {
                 if(tcpEndPoints.All(ep => ep.Port != port)) return port;
             }
-            
+
             throw new Exception("No free port found.");
         }
 

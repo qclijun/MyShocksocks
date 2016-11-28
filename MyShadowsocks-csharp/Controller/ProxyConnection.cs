@@ -4,6 +4,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Jun;
 using Jun.Net;
 using NLog;
 
@@ -21,7 +22,7 @@ namespace MyShadowsocks.Controller {
 
         public static int ConnectionCount => _connections.Count;
 
-        public EventHandler CloseHandler = (sender, e) => RemoveConnection((ProxyConnection)sender);
+        //public EventHandler CloseHandler = (sender, e) => RemoveConnection((ProxyConnection)sender);
 
 
         public Socket ClientSocket { get; private set; }
@@ -41,17 +42,17 @@ namespace MyShadowsocks.Controller {
 
 
 
-        private bool _clientShutdown = false;
-        private bool _serverShutdown = false;
+        //private bool _clientShutdown = false;
+        //private bool _serverShutdown = false;
 
 
-        //DateTime field
-        private DateTime _lastActivity;
-        private DateTime _startConnectTime;
-        private DateTime _sstartReceiveTime;
-        private DateTime _startSendingTime;
+        ////DateTime field
+        //private DateTime _lastActivity;
+        //private DateTime _startConnectTime;
+        //private DateTime _sstartReceiveTime;
+        //private DateTime _startSendingTime;
 
-        private readonly TimeSpan _serverTimeout;
+        //private readonly TimeSpan _serverTimeout;
 
 
         
@@ -59,7 +60,7 @@ namespace MyShadowsocks.Controller {
 
         protected ProxyConnection(Socket clientSocket) {
             ClientSocket = clientSocket;
-            _lastActivity = DateTime.Now;
+           // _lastActivity = DateTime.Now;
         }
 
         private ProxyConnection() : this(null) { }
@@ -83,8 +84,8 @@ namespace MyShadowsocks.Controller {
             int oldValue = Interlocked.Exchange(ref _disposed, 1);
             if(oldValue == 1) return;
 
-
-            logger.Debug("Close Connection " + this);
+            RemoveConnection(this);
+            logger.Info("Close Connection {0}, Current connection count: {1}", this, ConnectionCount);
             if(disposing) {
                 //free managed resources
                 
@@ -92,7 +93,7 @@ namespace MyShadowsocks.Controller {
                     ClientSocket?.FullClose();
                     ServerSocket?.FullClose();
 
-                    CloseHandler?.Invoke(this, null);
+                    //CloseHandler?.Invoke(this, null);
                 } catch { }
             }
 
@@ -107,17 +108,18 @@ namespace MyShadowsocks.Controller {
             Dispose();
         }
 
-        public void CheckClose() {
-            if(_clientShutdown && _serverShutdown)
-                Close();
-        }
+        //public void CheckClose() {
+        //    if(_clientShutdown && _serverShutdown)
+        //        Close();
+        //}
 
 
         #endregion
 
 
         protected void OnException(Exception ex) {
-            logger.Error(ex.Message);
+            if(ex is SocketException) logger.Error("SocketException: " + (ex as SocketException).SocketErrorCode);
+            else logger.Error(ex.TypeAndMessage());
             OnException();
         }
 
@@ -144,7 +146,7 @@ namespace MyShadowsocks.Controller {
         }
 
         private void OnClosed() {
-            CloseHandler(this, null);
+            //CloseHandler(this, null);
             Close();           
         }
 
@@ -232,7 +234,11 @@ namespace MyShadowsocks.Controller {
             logger.Debug("StartPipe...");
             try {
                 await await Task.WhenAny(StartPipeC2S(), StartPipeS2C());
-            } catch(Exception ex) {
+            } catch(TaskCanceledException) {
+                //StartPipe canncel because a conditional
+                //continuation predicate not saticfied
+            }
+            catch(Exception ex) {
                 OnException(ex);
             }
         }
